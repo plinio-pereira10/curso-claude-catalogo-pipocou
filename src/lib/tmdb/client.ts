@@ -35,37 +35,46 @@ export async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T
   // Até 3 tentativas: a primeira + uma depois de cada espera.
   for (let attempt = 0; ; attempt++) {
     const isLastAttempt = attempt === RETRY_DELAYS_MS.length
-    // Tempo-limite: se o TMDB não responder em 5 s, o pedido é cancelado.
+    // Tempo-limite: se o TMDB não responder (e terminar de enviar a resposta) em 5 s,
+    // o pedido é cancelado.
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
-    let response: Response
+    const timer = setTimeout(
+      () => controller.abort(new Error(`tempo esgotado (${TIMEOUT_MS / 1000} s)`)),
+      TIMEOUT_MS,
+    )
     try {
-      response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-        signal: controller.signal,
-      })
-    } catch (error) {
-      // Erros internos do Next.js (ex.: ao terminar a pré-renderização ele cancela os pedidos
-      // pendentes de propósito) voltam para o Next tratar — não são falha de conexão.
-      unstable_rethrow(error)
-      // Falha de conexão (ex.: "fetch failed" quando a internet oscila) ou tempo esgotado.
-      if (isLastAttempt) throw error
-      await waitBeforeRetry(attempt, path, `falha de conexão (${describeError(error)})`)
-      continue
+      let response: Response
+      try {
+        response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+          signal: controller.signal,
+        })
+      } catch (error) {
+        // Erros internos do Next.js (ex.: ao terminar a pré-renderização ele cancela os pedidos
+        // pendentes de propósito) voltam para o Next tratar — não são falha de conexão.
+        unstable_rethrow(error)
+        // Falha de conexão (ex.: "fetch failed" quando a internet oscila) ou tempo esgotado.
+        if (isLastAttempt) throw error
+        clearTimeout(timer)
+        await waitBeforeRetry(attempt, path, `falha de conexão (${describeError(error)})`)
+        continue
+      }
+
+      if (response.ok) {
+        // a leitura do corpo também está coberta pelo tempo-limite
+        return (await response.json()) as T
+      }
+
+      // 429 (TMDB sobrecarregado) e 5xx (erro no TMDB) podem passar; 404 e afins, não.
+      const temporary = response.status === 429 || response.status >= 500
+      if (!temporary || isLastAttempt) {
+        throw new TmdbError(response.status, `TMDB respondeu ${response.status} em ${path}`)
+      }
+      clearTimeout(timer)
+      await waitBeforeRetry(attempt, path, `status ${response.status}`)
     } finally {
       clearTimeout(timer)
     }
-
-    if (response.ok) {
-      return (await response.json()) as T
-    }
-
-    // 429 (TMDB sobrecarregado) e 5xx (erro no TMDB) podem passar; 404 e afins, não.
-    const temporary = response.status === 429 || response.status >= 500
-    if (!temporary || isLastAttempt) {
-      throw new TmdbError(response.status, `TMDB respondeu ${response.status} em ${path}`)
-    }
-    await waitBeforeRetry(attempt, path, `status ${response.status}`)
   }
 }
 

@@ -110,3 +110,49 @@ test('sem token → erro imediato, nenhuma chamada', async () => {
   await expect(run(tmdbFetch('/x'))).rejects.toThrow('TMDB_READ_TOKEN não configurado')
   expect(fetchMock).not.toHaveBeenCalled()
 })
+
+// ---- Tempo-limite: valor, limpeza e leitura da resposta ----
+
+test('tempo-limite não dispara antes de 5 s', async () => {
+  fetchMock.mockImplementationOnce(hangingFetch).mockResolvedValueOnce(json({ ok: 1 }))
+  const promise = tmdbFetch('/x')
+  await vi.advanceTimersByTimeAsync(4999)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  await vi.advanceTimersByTimeAsync(1 + 300) // estoura o tempo-limite e passa a espera de 300 ms
+  expect(fetchMock).toHaveBeenCalledTimes(2)
+  await expect(promise).resolves.toEqual({ ok: 1 })
+})
+
+test('timer é limpo após sucesso', async () => {
+  fetchMock.mockResolvedValueOnce(json({ ok: 1 }))
+  await run(tmdbFetch('/x'))
+  expect(vi.getTimerCount()).toBe(0)
+})
+
+test('log diz "tempo esgotado" quando o tempo-limite estoura', async () => {
+  // fetch que rejeita com o motivo do cancelamento, como o fetch real faz
+  fetchMock
+    .mockImplementationOnce(
+      (_url: unknown, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+        }),
+    )
+    .mockResolvedValueOnce(json({ ok: 1 }))
+  await run(tmdbFetch('/x'))
+  expect(vi.mocked(console.warn).mock.calls[0][0]).toContain('tempo esgotado (5 s)')
+})
+
+test('corpo da resposta que trava também cai no tempo-limite', async () => {
+  // cabeçalhos chegam, mas o corpo nunca termina (a não ser que o pedido seja cancelado)
+  fetchMock.mockImplementationOnce(async (_url: unknown, init?: RequestInit) => {
+    const body = new ReadableStream({
+      start(controller) {
+        init?.signal?.addEventListener('abort', () => controller.error(init.signal?.reason))
+      },
+    })
+    return new Response(body, { status: 200 })
+  })
+  await expect(run(tmdbFetch('/x'))).rejects.toThrow('tempo esgotado (5 s)')
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+})
