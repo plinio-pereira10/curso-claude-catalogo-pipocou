@@ -1,4 +1,5 @@
 import 'server-only'
+import { unstable_rethrow } from 'next/navigation'
 
 const API_BASE = 'https://api.themoviedb.org/3'
 
@@ -34,16 +35,25 @@ export async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T
   // Até 3 tentativas: a primeira + uma depois de cada espera.
   for (let attempt = 0; ; attempt++) {
     const isLastAttempt = attempt === RETRY_DELAYS_MS.length
+    // Tempo-limite: se o TMDB não responder em 5 s, o pedido é cancelado.
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
     let response: Response
     try {
       response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+        signal: controller.signal,
       })
     } catch (error) {
-      // Falha de conexão (ex.: "fetch failed" quando a internet oscila).
+      // Erros internos do Next.js (ex.: ao terminar a pré-renderização ele cancela os pedidos
+      // pendentes de propósito) voltam para o Next tratar — não são falha de conexão.
+      unstable_rethrow(error)
+      // Falha de conexão (ex.: "fetch failed" quando a internet oscila) ou tempo esgotado.
       if (isLastAttempt) throw error
-      await waitBeforeRetry(attempt, path, 'falha de conexão')
+      await waitBeforeRetry(attempt, path, `falha de conexão (${describeError(error)})`)
       continue
+    } finally {
+      clearTimeout(timer)
     }
 
     if (response.ok) {
@@ -59,8 +69,19 @@ export async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T
   }
 }
 
+/** Quanto tempo esperar a resposta de cada pedido antes de desistir dele. */
+export const TIMEOUT_MS = 5000
+
 /** Esperas entre tentativas (em milissegundos): 300 ms e depois 1 s. */
 export const RETRY_DELAYS_MS = [300, 1000]
+
+/** Texto curto do erro para o log (ex.: "TypeError: fetch failed / ECONNRESET"). */
+function describeError(error: unknown): string {
+  if (!(error instanceof Error)) return String(error)
+  const cause = (error as { cause?: { code?: string; message?: string } }).cause
+  const detail = cause?.code ?? cause?.message
+  return `${error.name}: ${error.message}${detail ? ` / ${detail}` : ''}`
+}
 
 async function waitBeforeRetry(attempt: number, path: string, reason: string) {
   const delay = RETRY_DELAYS_MS[attempt]

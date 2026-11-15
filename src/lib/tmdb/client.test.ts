@@ -75,6 +75,36 @@ test('três respostas 500 → lança TmdbError 500', async () => {
   expect(fetchMock).toHaveBeenCalledTimes(3)
 })
 
+/** Um fetch que nunca responde, mas desiste quando o pedido é cancelado (tempo-limite). */
+function hangingFetch(_url: unknown, init?: RequestInit) {
+  return new Promise<Response>((_resolve, reject) => {
+    init?.signal?.addEventListener('abort', () => reject(new DOMException('tempo esgotado', 'TimeoutError')))
+  })
+}
+
+test('pedido que trava é cancelado em 5 s e tenta de novo', async () => {
+  fetchMock.mockImplementationOnce(hangingFetch).mockResolvedValueOnce(json({ ok: 1 }))
+  await expect(run(tmdbFetch('/x'))).resolves.toEqual({ ok: 1 })
+  expect(fetchMock).toHaveBeenCalledTimes(2)
+})
+
+test('três pedidos que travam → erro, sem esperar para sempre', async () => {
+  fetchMock.mockImplementation(hangingFetch)
+  await expect(run(tmdbFetch('/x'))).rejects.toThrow('tempo esgotado')
+  expect(fetchMock).toHaveBeenCalledTimes(3)
+})
+
+test('cancelamento da pré-renderização do Next não é repetido', async () => {
+  // Erro que o Next.js usa quando termina a pré-renderização e cancela os pedidos pendentes.
+  const prerenderAbort = Object.assign(new Error('During prerendering, fetch() rejects...'), {
+    digest: 'HANGING_PROMISE_REJECTION',
+  })
+  fetchMock.mockRejectedValueOnce(prerenderAbort).mockResolvedValueOnce(json({ ok: 1 }))
+  await expect(run(tmdbFetch('/x'))).rejects.toBe(prerenderAbort)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(console.warn).not.toHaveBeenCalled()
+})
+
 test('sem token → erro imediato, nenhuma chamada', async () => {
   vi.stubEnv('TMDB_READ_TOKEN', '')
   await expect(run(tmdbFetch('/x'))).rejects.toThrow('TMDB_READ_TOKEN não configurado')
