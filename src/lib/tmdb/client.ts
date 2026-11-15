@@ -31,13 +31,39 @@ export async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T
     if (value !== undefined) url.searchParams.set(key, String(value))
   }
 
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-  })
+  // Até 3 tentativas: a primeira + uma depois de cada espera.
+  for (let attempt = 0; ; attempt++) {
+    const isLastAttempt = attempt === RETRY_DELAYS_MS.length
+    let response: Response
+    try {
+      response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+      })
+    } catch (error) {
+      // Falha de conexão (ex.: "fetch failed" quando a internet oscila).
+      if (isLastAttempt) throw error
+      await waitBeforeRetry(attempt, path, 'falha de conexão')
+      continue
+    }
 
-  if (!response.ok) {
-    throw new TmdbError(response.status, `TMDB respondeu ${response.status} em ${path}`)
+    if (response.ok) {
+      return (await response.json()) as T
+    }
+
+    // 429 (TMDB sobrecarregado) e 5xx (erro no TMDB) podem passar; 404 e afins, não.
+    const temporary = response.status === 429 || response.status >= 500
+    if (!temporary || isLastAttempt) {
+      throw new TmdbError(response.status, `TMDB respondeu ${response.status} em ${path}`)
+    }
+    await waitBeforeRetry(attempt, path, `status ${response.status}`)
   }
+}
 
-  return (await response.json()) as T
+/** Esperas entre tentativas (em milissegundos): 300 ms e depois 1 s. */
+export const RETRY_DELAYS_MS = [300, 1000]
+
+async function waitBeforeRetry(attempt: number, path: string, reason: string) {
+  const delay = RETRY_DELAYS_MS[attempt]
+  console.warn(`TMDB: ${reason} em ${path}; tentando de novo em ${delay} ms`)
+  await new Promise((resolve) => setTimeout(resolve, delay))
 }
