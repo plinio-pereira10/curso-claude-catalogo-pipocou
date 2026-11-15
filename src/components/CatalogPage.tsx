@@ -7,6 +7,7 @@ import { getGenres, getTopProviders } from '@/lib/tmdb/titles'
 import { DoramasToggle } from './DoramasToggle'
 import { GenreSelect } from './GenreSelect'
 import { ProviderFilter } from './ProviderFilter'
+import { RatingSelect } from './RatingSelect'
 import { SearchBox } from './SearchBox'
 import { TitleGrid } from './TitleGrid'
 
@@ -27,7 +28,7 @@ export function CatalogPage({ type, searchParams }: Props) {
 /** Lê os filtros da URL e busca a primeira página no TMDB (sempre no servidor). */
 async function Catalog({ type, searchParams }: Props) {
   const filters = { ...parseFilters(await searchParams), page: 1 }
-  const { providerId, genreId, q, doramas } = filters
+  const { providerId, genreId, minRating, q, doramas } = filters
   const [providers, allGenres] = await Promise.all([getTopProviders(type), getGenres(type)])
   const firstPage = await loadCatalogPage(
     type,
@@ -36,7 +37,7 @@ async function Catalog({ type, searchParams }: Props) {
   )
 
   const searching = Boolean(q)
-  const current = { providerId, genreId, q, doramas }
+  const current = { providerId, genreId, minRating, q, doramas }
   const query = filtersToQuery(current)
 
   return (
@@ -51,6 +52,7 @@ async function Catalog({ type, searchParams }: Props) {
             filters={current}
             disabled={searching}
           />
+          <RatingSelect type={type} filters={current} disabled={searching} />
           <DoramasToggle type={type} filters={current} disabled={searching} />
         </div>
         {searching && <p className="text-sm text-zinc-400">{MEDIA[type].searchNote}</p>}

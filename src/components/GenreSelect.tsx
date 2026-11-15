@@ -17,7 +17,7 @@ export function GenreSelect({ type, genres, filters, disabled }: Props) {
 
   function change(value: string) {
     const genreId = value ? Number(value) : undefined
-    router.push(listHref(type, { providerId: filters.providerId, genreId, doramas: filters.doramas }))
+    router.push(listHref(type, { ...filters, q: undefined, genreId }))
   }
 
   // Se o gênero da URL não está na lista (ex.: escondido pelo Doramas), mostra "Todos".

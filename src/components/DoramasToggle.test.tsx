@@ -34,3 +34,9 @@ test('DoramasToggle desativado na busca', () => {
   render(<DoramasToggle type="tv" filters={{ q: 'x', doramas: false }} disabled />)
   expect(screen.getByRole('button', { name: '🌸 Doramas' })).toBeDisabled()
 })
+
+test('DoramasToggle mantém a nota', async () => {
+  render(<DoramasToggle type="tv" filters={{ minRating: 7, doramas: false }} disabled={false} />)
+  await userEvent.click(screen.getByRole('button', { name: '🌸 Doramas' }))
+  expect(push).toHaveBeenCalledWith('/series?nota=7&doramas=1')
+})

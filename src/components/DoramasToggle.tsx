@@ -20,7 +20,8 @@ export function DoramasToggle({ type, filters, disabled }: Props) {
     const doramas = !active
     router.push(
       listHref(type, {
-        providerId: filters.providerId,
+        ...filters,
+        q: undefined,
         // ao ligar, um gênero que não conta como dorama (ex.: Animação) sai da URL
         genreId: effectiveGenreId(type, filters.genreId, doramas),
         doramas,

@@ -20,7 +20,7 @@ export function ProviderFilter({ type, providers, filters, disabled }: Props) {
 
   function select(id: number) {
     const providerId = id === filters.providerId ? undefined : id
-    router.push(listHref(type, { providerId, genreId: filters.genreId, doramas: filters.doramas }))
+    router.push(listHref(type, { ...filters, q: undefined, providerId }))
   }
 
   return (
