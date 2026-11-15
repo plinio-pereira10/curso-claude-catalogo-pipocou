@@ -6,7 +6,7 @@ import { summarizeAvailability } from '@/lib/availability'
 import { formatRating, formatRuntime } from '@/lib/format'
 import { posterUrl } from '@/lib/images'
 import { TmdbError } from '@/lib/tmdb/client'
-import { getMovieDetails, getMovieProviders } from '@/lib/tmdb/movies'
+import { getTitleDetails, getWatchProviders } from '@/lib/tmdb/titles'
 import { BackButton } from '@/components/BackButton'
 import { PosterPlaceholder } from '@/components/MovieCard'
 import { WhereToWatch } from '@/components/WhereToWatch'
@@ -26,8 +26,8 @@ const loadMovie = cache(async (rawId: string) => {
   const id = parseMovieId(rawId)
   if (id === null) notFound()
   try {
-    const [details, providers] = await Promise.all([getMovieDetails(id), getMovieProviders(id)])
-    return { details, availability: summarizeAvailability(providers) }
+    const [details, providers] = await Promise.all([getTitleDetails('movie', id), getWatchProviders('movie', id)])
+    return { details, availability: summarizeAvailability(providers.byCountry) }
   } catch (error) {
     if (error instanceof TmdbError && error.status === 404) notFound()
     throw error

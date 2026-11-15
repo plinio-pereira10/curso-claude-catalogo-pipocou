@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { loadCatalogPage } from '@/lib/catalog'
 import { filtersToQuery, parseFilters } from '@/lib/filters'
-import { getGenres, getTopProviders } from '@/lib/tmdb/movies'
+import { getGenres, getTopProviders } from '@/lib/tmdb/titles'
 import { GenreSelect } from '@/components/GenreSelect'
 import { MovieGrid } from '@/components/MovieGrid'
 import { ProviderFilter } from '@/components/ProviderFilter'
@@ -19,7 +19,7 @@ export default function Home({ searchParams }: PageProps<'/'>) {
 async function Catalog({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) {
   const filters = { ...parseFilters(await searchParams), page: 1 }
   const { providerId, genreId, q } = filters
-  const [providers, genres] = await Promise.all([getTopProviders(), getGenres()])
+  const [providers, genres] = await Promise.all([getTopProviders('movie'), getGenres('movie')])
   const firstPage = await loadCatalogPage(
     filters,
     providers.map((p) => p.id),

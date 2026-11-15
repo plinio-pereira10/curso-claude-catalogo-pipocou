@@ -1,5 +1,5 @@
-/** Um filme na lista (cartão). */
-export type MovieSummary = {
+/** Um filme ou série na lista (cartão). Para séries, `title` guarda o nome da série. */
+export type TitleSummary = {
   id: number
   title: string
   posterPath: string | null
@@ -8,8 +8,8 @@ export type MovieSummary = {
 }
 
 /** Uma página de resultados. `totalPages` já vem limitado a 500 (limite do TMDB). */
-export type MoviePage = {
-  results: MovieSummary[]
+export type TitlePage = {
+  results: TitleSummary[]
   page: number
   totalPages: number
 }
@@ -27,11 +27,20 @@ export type Genre = {
 }
 
 /** Todas as informações da tela de detalhes. */
-export type MovieDetails = MovieSummary & {
+export type TitleDetails = TitleSummary & {
   overview: string
+  /** Duração em minutos (só filmes). */
   runtime: number | null
+  /** Número de temporadas (só séries). */
+  seasons: number | null
   genres: Genre[]
 }
 
-/** Código do país (ex.: "BR") → serviços de assinatura onde o filme está. */
+/** Código do país (ex.: "BR") → serviços de assinatura onde o título está. */
 export type ProvidersByCountry = Record<string, Provider[]>
+
+/** Onde assistir: serviços por país + link do TMDB para o Brasil (só se houver assinatura no Brasil). */
+export type WatchProviders = {
+  byCountry: ProvidersByCountry
+  brazilLink: string | null
+}

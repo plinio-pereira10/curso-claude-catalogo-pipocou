@@ -2,17 +2,17 @@
 
 import { useState } from 'react'
 import { MovieCard } from './MovieCard'
-import type { MoviePage, MovieSummary } from '@/lib/tmdb/types'
+import type { TitlePage, TitleSummary } from '@/lib/tmdb/types'
 
 type Props = {
   /** A primeira página, já buscada no servidor. */
-  initial: MoviePage
+  initial: TitlePage
   /** Os filtros atuais no formato da URL (sem "page"), ex.: "provider=8". */
   query: string
 }
 
 /** Junta duas listas sem repetir filmes (a popularidade muda entre uma página e outra). */
-function mergeUnique(current: MovieSummary[], incoming: MovieSummary[]): MovieSummary[] {
+function mergeUnique(current: TitleSummary[], incoming: TitleSummary[]): TitleSummary[] {
   const seen = new Set(current.map((m) => m.id))
   return [...current, ...incoming.filter((m) => !seen.has(m.id))]
 }
@@ -33,7 +33,7 @@ export function MovieGrid({ initial, query }: Props) {
       params.set('page', String(page + 1))
       const response = await fetch(`/api/movies?${params.toString()}`)
       if (!response.ok) throw new Error(`status ${response.status}`)
-      const next: MoviePage = await response.json()
+      const next: TitlePage = await response.json()
       setMovies((current) => mergeUnique(current, next.results))
       setPage(next.page)
     } catch {

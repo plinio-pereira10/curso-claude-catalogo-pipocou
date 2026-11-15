@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { posterUrl } from '@/lib/images'
-import type { MovieSummary } from '@/lib/tmdb/types'
+import type { TitleSummary } from '@/lib/tmdb/types'
 
 /** Bloco cinza usado quando o filme não tem cartaz. */
 export function PosterPlaceholder({ title }: { title: string }) {
@@ -12,7 +12,7 @@ export function PosterPlaceholder({ title }: { title: string }) {
   )
 }
 
-export function MovieCard({ movie }: { movie: MovieSummary }) {
+export function MovieCard({ movie }: { movie: TitleSummary }) {
   const src = posterUrl(movie.posterPath)
   return (
     <Link href={`/filme/${movie.id}`} className="group block">

@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MovieGrid } from './MovieGrid'
-import type { MovieSummary } from '@/lib/tmdb/types'
+import type { TitleSummary } from '@/lib/tmdb/types'
 
 const fetchMock = vi.fn()
 
-function movie(id: number, title: string): MovieSummary {
+function movie(id: number, title: string): TitleSummary {
   return { id, title, posterPath: null, releaseYear: 2024, voteAverage: 7 }
 }
 

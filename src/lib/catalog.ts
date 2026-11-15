@@ -1,19 +1,20 @@
 import type { Filters } from './filters'
-import { discoverMovies, searchMovies } from './tmdb/movies'
-import type { MoviePage } from './tmdb/types'
+import { discoverTitles, searchTitles } from './tmdb/titles'
+import type { TitlePage } from './tmdb/types'
 
 /**
  * Busca uma página da lista conforme os filtros.
  * - Com texto de busca: procura pelo nome (o TMDB não combina busca com streaming).
- * - Sem busca: filmes por assinatura no Brasil, no serviço escolhido ou em todos os dos botões.
+ * - Sem busca: títulos por assinatura no Brasil, no serviço escolhido ou em todos os dos botões.
  */
-export function loadCatalogPage(filters: Filters, allProviderIds: number[]): Promise<MoviePage> {
+export function loadCatalogPage(filters: Filters, allProviderIds: number[]): Promise<TitlePage> {
   if (filters.q) {
-    return searchMovies({ query: filters.q, page: filters.page })
+    return searchTitles('movie', { query: filters.q, page: filters.page })
   }
-  return discoverMovies({
+  return discoverTitles('movie', {
     providerIds: filters.providerId ? [filters.providerId] : allProviderIds,
     genreId: filters.genreId,
+    doramas: filters.doramas,
     page: filters.page,
   })
 }
