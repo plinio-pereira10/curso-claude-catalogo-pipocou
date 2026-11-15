@@ -44,7 +44,7 @@ export function listHref(type: MediaType, filters: ListFilters): string {
   return query ? `${MEDIA[type].listPath}?${query}` : MEDIA[type].listPath
 }
 
-/** Link da aba: mantém streaming e Doramas; limpa gênero, busca e página. */
-export function switchTabHref(target: MediaType, current: Pick<ListFilters, 'providerId' | 'doramas'>): string {
-  return listHref(target, { providerId: current.providerId, doramas: current.doramas })
+/** Link da aba: mantém streaming, nota e Doramas; limpa gênero, busca e página. */
+export function switchTabHref(target: MediaType, current: Pick<ListFilters, 'providerId' | 'minRating' | 'doramas'>): string {
+  return listHref(target, { providerId: current.providerId, minRating: current.minRating, doramas: current.doramas })
 }

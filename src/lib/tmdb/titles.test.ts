@@ -358,3 +358,22 @@ test('discoverTitles não usa cache', async () => {
   await discoverTitles('tv', { providerIds: [8], doramas: false, page: 1 })
   expect(cacheLife).not.toHaveBeenCalled()
 })
+
+// ---- Nota mínima ----
+
+test('nota mínima envia vote_average.gte e vote_count.gte=15', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('tv', { providerIds: [8], doramas: true, minRating: 8, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.get('vote_average.gte')).toBe('8')
+  expect(url.searchParams.get('vote_count.gte')).toBe('15')
+  expect(url.searchParams.get('sort_by')).toBe('popularity.desc')
+})
+
+test('sem nota não envia vote_average.gte nem vote_count.gte', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('movie', { providerIds: [8], doramas: false, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.has('vote_average.gte')).toBe(false)
+  expect(url.searchParams.has('vote_count.gte')).toBe(false)
+})

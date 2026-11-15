@@ -46,3 +46,15 @@ test('filtersToQuery escreve doramas na ordem', () => {
   expect(filtersToQuery({ providerId: 8, genreId: 35, doramas: true, page: 2 })).toBe('provider=8&genre=35&doramas=1&page=2')
   expect(filtersToQuery({ providerId: 8, doramas: false })).toBe('provider=8')
 })
+
+test('lê nota', () => {
+  expect(parseFilters({ nota: '8' }).minRating).toBe(8)
+  expect(parseFilters({ nota: '9' }).minRating).toBeUndefined()
+  expect(parseFilters({ nota: '9' })).toEqual({ doramas: false, page: 1 })
+})
+
+test('filtersToQuery escreve nota na ordem', () => {
+  expect(filtersToQuery({ providerId: 8, genreId: 35, minRating: 7, doramas: true })).toBe(
+    'provider=8&genre=35&nota=7&doramas=1',
+  )
+})

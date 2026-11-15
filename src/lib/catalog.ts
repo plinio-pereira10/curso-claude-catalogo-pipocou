@@ -18,6 +18,7 @@ export function loadCatalogPage(type: MediaType, filters: Filters, allProviderId
     providerIds: filters.providerId ? [filters.providerId] : allProviderIds,
     genreId: effectiveGenreId(type, filters.genreId, filters.doramas),
     doramas: filters.doramas,
+    minRating: filters.minRating,
     page: filters.page,
   })
 }

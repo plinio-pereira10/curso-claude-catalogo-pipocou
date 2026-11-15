@@ -2,6 +2,7 @@ import { cacheLife } from 'next/cache'
 import { tmdbFetch } from './client'
 import { DORAMA_COUNTRIES, doramaExcludedGenres } from '../doramas'
 import type { MediaType } from '../media'
+import { MIN_VOTE_COUNT, type MinRating } from '../rating'
 import type { Genre, Provider, TitleDetails, TitlePage, TitleSummary, WatchProviders } from './types'
 
 /** O TMDB não deixa pedir além da página 500. */
@@ -78,12 +79,13 @@ function genreParams(type: MediaType, genreId: number | undefined) {
 
 /**
  * Filmes ou séries disponíveis por assinatura no Brasil, nos serviços informados (OU).
+ * Com `minRating`, só títulos com essa nota ou mais (e votos suficientes).
  * Com `doramas`, só títulos da Coreia do Sul, Japão, China, Taiwan e Tailândia,
  * sem animação (e, nas séries, sem reality, auditório e jornalismo).
  */
 export async function discoverTitles(
   type: MediaType,
-  opts: { providerIds: number[]; genreId?: number; doramas: boolean; page: number },
+  opts: { providerIds: number[]; genreId?: number; doramas: boolean; minRating?: MinRating; page: number },
 ): Promise<TitlePage> {
   const raw = await tmdbFetch<RawPage>(`/discover/${type}`, {
     watch_region: 'BR',
@@ -92,6 +94,9 @@ export async function discoverTitles(
     ...genreParams(type, opts.genreId),
     with_origin_country: opts.doramas ? DORAMA_COUNTRIES.join('|') : undefined,
     without_genres: opts.doramas ? doramaExcludedGenres(type).join(',') : undefined,
+    // nota mínima: só títulos com essa nota e com votos suficientes para ela ser confiável
+    'vote_average.gte': opts.minRating,
+    'vote_count.gte': opts.minRating ? MIN_VOTE_COUNT : undefined,
     sort_by: 'popularity.desc',
     page: opts.page,
   })

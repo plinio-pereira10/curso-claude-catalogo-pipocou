@@ -1,7 +1,11 @@
+import { parseMinRating, type MinRating } from './rating'
+
 /** Os filtros da lista, lidos do endereço da página (ex.: `?provider=8&genre=35`). */
 export type Filters = {
   providerId?: number
   genreId?: number
+  /** Nota mínima (6, 7 ou 8), `nota=` na URL. */
+  minRating?: MinRating
   q?: string
   /** Botão Doramas ligado (`doramas=1` na URL). */
   doramas: boolean
@@ -36,6 +40,9 @@ export function parseFilters(sp: SearchParams): Filters {
   const genreId = positiveInt(first(sp.genre))
   if (genreId) filters.genreId = genreId
 
+  const minRating = parseMinRating(first(sp.nota))
+  if (minRating) filters.minRating = minRating
+
   const q = first(sp.q)?.trim()
   if (q) filters.q = q
 
@@ -47,6 +54,7 @@ export function filtersToQuery(f: Omit<Filters, 'page' | 'doramas'> & { page?: n
   const params = new URLSearchParams()
   if (f.providerId) params.set('provider', String(f.providerId))
   if (f.genreId) params.set('genre', String(f.genreId))
+  if (f.minRating) params.set('nota', String(f.minRating))
   if (f.doramas) params.set('doramas', '1')
   if (f.q) params.set('q', f.q)
   if (f.page && f.page > 1) params.set('page', String(f.page))
