@@ -2,7 +2,7 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-white/10 px-4 py-6 text-center text-sm text-zinc-400">
       <p>
-        Dados de filmes fornecidos pelo{' '}
+        Dados de filmes e séries fornecidos pelo{' '}
         <a href="https://www.themoviedb.org" className="underline hover:text-white" target="_blank" rel="noreferrer">
           TMDB
         </a>

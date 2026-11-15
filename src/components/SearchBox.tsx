@@ -2,21 +2,22 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { filtersToQuery } from '@/lib/filters'
+import { listHref, MEDIA, type MediaType } from '@/lib/media'
 
 /** Busca por nome. Envia com Enter ou com o botão; "Limpar" volta para a lista normal. */
-export function SearchBox({ initialQuery = '' }: { initialQuery?: string }) {
+export function SearchBox({ type, initialQuery = '' }: { type: MediaType; initialQuery?: string }) {
   const router = useRouter()
   const [text, setText] = useState(initialQuery)
+  const placeholder = type === 'tv' ? 'Buscar série pelo nome' : 'Buscar filme pelo nome'
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
-    router.push('/?' + filtersToQuery({ q: text.trim() }))
+    router.push(listHref(type, { q: text.trim(), doramas: false }))
   }
 
   function clear() {
     setText('')
-    router.push('/')
+    router.push(MEDIA[type].listPath)
   }
 
   return (
@@ -25,8 +26,8 @@ export function SearchBox({ initialQuery = '' }: { initialQuery?: string }) {
         type="search"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Buscar filme pelo nome"
-        aria-label="Buscar filme pelo nome"
+        placeholder={placeholder}
+        aria-label={placeholder}
         className="w-full rounded border border-white/20 bg-zinc-900 px-3 py-1.5 text-sm sm:w-72"
       />
       <button type="submit" className="rounded bg-white px-3 py-1.5 text-sm font-medium text-black">
