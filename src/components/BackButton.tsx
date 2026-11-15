@@ -1,14 +1,19 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { MEDIA, type MediaType } from '@/lib/media'
+import { hasInAppHistory } from '@/lib/navigation-history'
 
-/** Volta para a lista mantendo os filtros. Se a pessoa abriu o link direto, vai para o início. */
-export function BackButton() {
+/**
+ * Volta para a página anterior do site (mantendo os filtros).
+ * Se esta foi a primeira página aberta (ex.: link do WhatsApp), vai para a lista da aba certa.
+ */
+export function BackButton({ type }: { type: MediaType }) {
   const router = useRouter()
 
   function goBack() {
-    if (window.history.length > 1) router.back()
-    else router.push('/')
+    if (hasInAppHistory()) router.back()
+    else router.push(MEDIA[type].listPath)
   }
 
   return (

@@ -25,3 +25,8 @@ test('formatSeasons', () => {
   expect(formatSeasons(null)).toBeNull()
   expect(formatSeasons(0)).toBeNull()
 })
+
+test('formatRating sem votos mostra "Sem nota"', () => {
+  expect(formatRating(0)).toBe('Sem nota')
+  expect(formatRating(8.234)).toBe('8.2')
+})

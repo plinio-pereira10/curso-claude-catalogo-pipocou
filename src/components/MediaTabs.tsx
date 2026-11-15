@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { parseFilters } from '@/lib/filters'
 import { MEDIA, switchTabHref, type MediaType } from '@/lib/media'
+import { recordVisit } from '@/lib/navigation-history'
 
 const TABS: MediaType[] = ['movie', 'tv']
 
@@ -12,11 +14,14 @@ function activeTab(pathname: string): MediaType {
   return pathname.startsWith('/series') || pathname.startsWith('/serie/') ? 'tv' : 'movie'
 }
 
-/** Abas "Filmes | Séries". Trocar de aba mantém o streaming e o Doramas escolhidos. */
+/** Abas "Filmes | Séries". Trocar de aba mantém o streaming, a nota e o Doramas escolhidos. */
 export function MediaTabs() {
   const pathname = usePathname()
   const filters = parseFilters(Object.fromEntries(useSearchParams()))
   const active = activeTab(pathname)
+
+  // As abas ficam em todas as páginas: aproveitamos para contar as visitas (usado pelo "← voltar").
+  useEffect(() => recordVisit(pathname), [pathname])
 
   return <TabLinks active={active} hrefFor={(type) => switchTabHref(type, filters)} />
 }

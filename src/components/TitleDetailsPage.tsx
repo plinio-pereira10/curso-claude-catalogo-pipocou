@@ -52,7 +52,7 @@ export async function titleMetadata(type: MediaType, params: Params): Promise<Me
 export function TitleDetailsPage({ type, params }: { type: MediaType; params: Params }) {
   return (
     <div className="space-y-6">
-      <BackButton />
+      <BackButton type={type} />
       <Suspense fallback={<p className="text-zinc-400">Carregando…</p>}>
         <TitleDetailsView type={type} params={params} />
       </Suspense>

@@ -12,7 +12,8 @@ export function formatSeasons(n: number | null): string | null {
   return n === 1 ? '1 temporada' : `${n} temporadas`
 }
 
-/** Nota do TMDB com uma casa decimal (ex.: 8.2). */
+/** Nota do TMDB com uma casa decimal (ex.: 8.2). Sem votos (nota 0) → "Sem nota". */
 export function formatRating(vote: number): string {
+  if (vote === 0) return 'Sem nota'
   return vote.toFixed(1)
 }

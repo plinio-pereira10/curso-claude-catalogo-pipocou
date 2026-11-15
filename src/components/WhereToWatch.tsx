@@ -42,7 +42,7 @@ export function WhereToWatch({ availability, brazilLink }: Props) {
             rel="noreferrer"
             className="mt-3 inline-block text-sm underline hover:text-white"
           >
-            Ver no streaming
+            Onde Assistir ↗
           </a>
         )}
       </section>
