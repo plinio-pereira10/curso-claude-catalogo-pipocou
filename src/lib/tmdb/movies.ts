@@ -103,11 +103,28 @@ export async function getMovieProviders(id: number): Promise<ProvidersByCountry>
   return byCountry
 }
 
-/** Os serviços mais importantes no Brasil, segundo a ordem do próprio TMDB. */
+/**
+ * Serviços de ASSINATURA que viram botões. O TMDB também lista lojas de aluguel/compra
+ * (Apple TV, Google Play...), que nunca teriam filmes "inclusos na assinatura".
+ * Para incluir outro serviço, adicione o ID dele aqui.
+ */
+export const SUBSCRIPTION_PROVIDER_IDS = [
+  8, // Netflix
+  119, // Prime Video
+  337, // Disney+
+  1899, // Max
+  307, // Globoplay
+  350, // Apple TV+
+  531, // Paramount+
+  11, // MUBI
+]
+
+/** Os serviços de assinatura mais importantes no Brasil, na ordem do próprio TMDB. */
 export async function getTopProviders(limit = 8): Promise<Provider[]> {
   const raw = await tmdbFetch<{ results: RawProvider[] }>('/watch/providers/movie', { watch_region: 'BR' })
   const priority = (p: RawProvider) => p.display_priorities?.BR ?? Number.MAX_SAFE_INTEGER
-  return [...raw.results]
+  return raw.results
+    .filter((p) => SUBSCRIPTION_PROVIDER_IDS.includes(p.provider_id))
     .sort((a, b) => priority(a) - priority(b))
     .slice(0, limit)
     .map(toProvider)

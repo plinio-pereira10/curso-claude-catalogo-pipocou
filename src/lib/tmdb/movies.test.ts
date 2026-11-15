@@ -131,9 +131,9 @@ test('getMovieProviders mantém só países com flatrate', async () => {
 test('getTopProviders ordena por display_priorities.BR e corta no limite', async () => {
   mockFetchJson({
     results: [
-      { provider_id: 1, provider_name: 'C', logo_path: '/c.png', display_priorities: { BR: 30 } },
-      { provider_id: 2, provider_name: 'A', logo_path: '/a.png', display_priorities: { BR: 1 } },
-      { provider_id: 3, provider_name: 'B', logo_path: '/b.png', display_priorities: { BR: 5 } },
+      { provider_id: 337, provider_name: 'Disney Plus', logo_path: '/d.png', display_priorities: { BR: 30 } },
+      { provider_id: 8, provider_name: 'Netflix', logo_path: '/n.png', display_priorities: { BR: 1 } },
+      { provider_id: 119, provider_name: 'Prime Video', logo_path: '/p.png', display_priorities: { BR: 5 } },
     ],
   })
   const r = await getTopProviders(2)
@@ -141,9 +141,20 @@ test('getTopProviders ordena por display_priorities.BR e corta no limite', async
   expect(url.pathname).toBe('/3/watch/providers/movie')
   expect(url.searchParams.get('watch_region')).toBe('BR')
   expect(r).toEqual([
-    { id: 2, name: 'A', logoPath: '/a.png' },
-    { id: 3, name: 'B', logoPath: '/b.png' },
+    { id: 8, name: 'Netflix', logoPath: '/n.png' },
+    { id: 119, name: 'Prime Video', logoPath: '/p.png' },
   ])
+})
+
+test('getTopProviders deixa de fora lojas de aluguel/compra', async () => {
+  mockFetchJson({
+    results: [
+      { provider_id: 2, provider_name: 'Apple TV', logo_path: '/a.png', display_priorities: { BR: 0 } },
+      { provider_id: 3, provider_name: 'Google Play Movies', logo_path: '/g.png', display_priorities: { BR: 1 } },
+      { provider_id: 8, provider_name: 'Netflix', logo_path: '/n.png', display_priorities: { BR: 2 } },
+    ],
+  })
+  expect(await getTopProviders()).toEqual([{ id: 8, name: 'Netflix', logoPath: '/n.png' }])
 })
 
 test('getGenres devolve a lista de gêneros', async () => {
