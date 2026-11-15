@@ -39,3 +39,25 @@ test('sem nenhum país mostra "Não disponível em streaming no momento."', () =
   expect(screen.getByText('Não disponível em streaming no momento.')).toBeInTheDocument()
   expect(screen.queryByText('Disponível em outros países:')).toBeNull()
 })
+
+test('com Brasil e link mostra "Ver no streaming"', () => {
+  render(
+    <WhereToWatch
+      availability={{ brazil: [netflix], otherCountries: [] }}
+      brazilLink="https://www.themoviedb.org/tv/5/watch?locale=BR"
+    />,
+  )
+  const link = screen.getByRole('link', { name: 'Ver no streaming' })
+  expect(link).toHaveAttribute('href', 'https://www.themoviedb.org/tv/5/watch?locale=BR')
+  expect(link).toHaveAttribute('target', '_blank')
+})
+
+test('sem Brasil não mostra o link mesmo com brazilLink', () => {
+  render(<WhereToWatch availability={{ brazil: [], otherCountries: countries(2) }} brazilLink="https://x" />)
+  expect(screen.queryByRole('link', { name: 'Ver no streaming' })).toBeNull()
+})
+
+test('com Brasil e sem link não mostra o link', () => {
+  render(<WhereToWatch availability={{ brazil: [netflix], otherCountries: [] }} brazilLink={null} />)
+  expect(screen.queryByRole('link', { name: 'Ver no streaming' })).toBeNull()
+})

@@ -1,4 +1,4 @@
-import { formatRuntime, formatRating } from './format'
+import { formatRuntime, formatRating, formatSeasons } from './format'
 
 test('formatRuntime mostra horas e minutos com dois dígitos', () => {
   expect(formatRuntime(166)).toBe('2h46min')
@@ -17,4 +17,11 @@ test('formatRuntime devolve null sem duração', () => {
 test('formatRating usa uma casa decimal', () => {
   expect(formatRating(8.234)).toBe('8.2')
   expect(formatRating(7)).toBe('7.0')
+})
+
+test('formatSeasons', () => {
+  expect(formatSeasons(1)).toBe('1 temporada')
+  expect(formatSeasons(3)).toBe('3 temporadas')
+  expect(formatSeasons(null)).toBeNull()
+  expect(formatSeasons(0)).toBeNull()
 })

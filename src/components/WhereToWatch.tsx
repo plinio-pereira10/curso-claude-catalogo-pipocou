@@ -8,7 +8,13 @@ import type { Availability } from '@/lib/availability'
 /** Quantos países aparecem antes do botão "ver todos". */
 const INITIAL_COUNTRIES = 5
 
-export function WhereToWatch({ availability }: { availability: Availability }) {
+type Props = {
+  availability: Availability
+  /** Página "onde assistir" do TMDB para o Brasil (só existe quando há assinatura no Brasil). */
+  brazilLink?: string | null
+}
+
+export function WhereToWatch({ availability, brazilLink }: Props) {
   const [showAll, setShowAll] = useState(false)
   const { brazil, otherCountries } = availability
 
@@ -29,6 +35,16 @@ export function WhereToWatch({ availability }: { availability: Availability }) {
             />
           ))}
         </div>
+        {brazilLink && (
+          <a
+            href={brazilLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-block text-sm underline hover:text-white"
+          >
+            Ver no streaming
+          </a>
+        )}
       </section>
     )
   }

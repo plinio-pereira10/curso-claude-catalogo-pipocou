@@ -6,6 +6,12 @@ export function formatRuntime(minutes: number | null): string | null {
   return h > 0 ? `${h}h${String(m).padStart(2, '0')}min` : `${m}min`
 }
 
+/** Número de temporadas → "1 temporada" / "3 temporadas". Sem número → null. */
+export function formatSeasons(n: number | null): string | null {
+  if (!n) return null
+  return n === 1 ? '1 temporada' : `${n} temporadas`
+}
+
 /** Nota do TMDB com uma casa decimal (ex.: 8.2). */
 export function formatRating(vote: number): string {
   return vote.toFixed(1)
