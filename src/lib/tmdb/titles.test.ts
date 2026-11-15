@@ -1,4 +1,5 @@
 vi.mock('server-only', () => ({}))
+vi.mock('next/cache', () => ({ cacheLife: vi.fn() }))
 
 import {
   discoverTitles,
@@ -9,6 +10,7 @@ import {
   getGenres,
 } from './titles'
 import { TmdbError } from './client'
+import { cacheLife } from 'next/cache'
 
 const fetchMock = vi.fn()
 
@@ -28,6 +30,7 @@ function lastFetchHeaders(): Record<string, string> {
 
 beforeEach(() => {
   fetchMock.mockReset()
+  vi.mocked(cacheLife).mockClear()
   vi.stubGlobal('fetch', fetchMock)
   vi.stubEnv('TMDB_READ_TOKEN', 'tok')
 })
@@ -336,4 +339,22 @@ test('getGenres de séries inclui Romance em ordem alfabética', async () => {
 test('getGenres de filmes não acrescenta nada', async () => {
   mockFetchJson({ genres: [{ id: 10749, name: 'Romance' }] })
   expect(await getGenres('movie')).toEqual([{ id: 10749, name: 'Romance' }])
+})
+
+// ---- Listas guardadas por 1 hora ----
+
+test('listas de streamings e gêneros são guardadas por "hours"', async () => {
+  mockFetchJson({ results: [] })
+  await getTopProviders('tv')
+  mockFetchJson({ genres: [] })
+  await getGenres('tv')
+  expect(cacheLife).toHaveBeenCalledTimes(2)
+  expect(cacheLife).toHaveBeenNthCalledWith(1, 'hours')
+  expect(cacheLife).toHaveBeenNthCalledWith(2, 'hours')
+})
+
+test('discoverTitles não usa cache', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('tv', { providerIds: [8], doramas: false, page: 1 })
+  expect(cacheLife).not.toHaveBeenCalled()
 })

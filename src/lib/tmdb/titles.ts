@@ -1,3 +1,4 @@
+import { cacheLife } from 'next/cache'
 import { tmdbFetch } from './client'
 import { DORAMA_COUNTRIES, doramaExcludedGenres } from '../doramas'
 import type { MediaType } from '../media'
@@ -147,8 +148,13 @@ export const SUBSCRIPTION_PROVIDER_IDS = [
   11, // MUBI
 ]
 
-/** Os serviços de assinatura mais importantes no Brasil, na ordem do próprio TMDB. */
+/**
+ * Os serviços de assinatura mais importantes no Brasil, na ordem do próprio TMDB.
+ * Guardada por 1 hora no servidor ('hours'): a lista quase nunca muda.
+ */
 export async function getTopProviders(type: MediaType, limit = 8): Promise<Provider[]> {
+  'use cache'
+  cacheLife('hours')
   const raw = await tmdbFetch<{ results: RawProvider[] }>(`/watch/providers/${type}`, { watch_region: 'BR' })
   const priority = (p: RawProvider) => p.display_priorities?.BR ?? Number.MAX_SAFE_INTEGER
   return raw.results
@@ -158,7 +164,10 @@ export async function getTopProviders(type: MediaType, limit = 8): Promise<Provi
     .map(toProvider)
 }
 
+/** Lista de gêneros. Guardada por 1 hora no servidor ('hours'): quase nunca muda. */
 export async function getGenres(type: MediaType): Promise<Genre[]> {
+  'use cache'
+  cacheLife('hours')
   const raw = await tmdbFetch<{ genres: Genre[] }>(`/genre/${type}/list`)
   if (type === 'movie') return raw.genres
   // Séries: acrescenta "Romance" (por palavra-chave), em ordem alfabética.
