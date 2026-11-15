@@ -3,6 +3,8 @@ export type Filters = {
   providerId?: number
   genreId?: number
   q?: string
+  /** Botão Doramas ligado (`doramas=1` na URL). */
+  doramas: boolean
   page: number
 }
 
@@ -23,7 +25,10 @@ function positiveInt(value: string | undefined): number | undefined {
 
 /** Lê os filtros da URL. Valores inválidos são ignorados (nunca dá erro). */
 export function parseFilters(sp: SearchParams): Filters {
-  const filters: Filters = { page: Math.min(positiveInt(first(sp.page)) ?? 1, MAX_PAGE) }
+  const filters: Filters = {
+    doramas: first(sp.doramas) === '1',
+    page: Math.min(positiveInt(first(sp.page)) ?? 1, MAX_PAGE),
+  }
 
   const providerId = positiveInt(first(sp.provider))
   if (providerId) filters.providerId = providerId
@@ -38,10 +43,11 @@ export function parseFilters(sp: SearchParams): Filters {
 }
 
 /** Monta o texto da URL (sem o "?") a partir dos filtros. Omite vazios e a página 1. */
-export function filtersToQuery(f: Omit<Filters, 'page'> & { page?: number }): string {
+export function filtersToQuery(f: Omit<Filters, 'page' | 'doramas'> & { page?: number; doramas?: boolean }): string {
   const params = new URLSearchParams()
   if (f.providerId) params.set('provider', String(f.providerId))
   if (f.genreId) params.set('genre', String(f.genreId))
+  if (f.doramas) params.set('doramas', '1')
   if (f.q) params.set('q', f.q)
   if (f.page && f.page > 1) params.set('page', String(f.page))
   return params.toString()

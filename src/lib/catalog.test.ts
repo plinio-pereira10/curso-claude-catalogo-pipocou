@@ -10,17 +10,17 @@ import { discoverMovies, searchMovies } from './tmdb/movies'
 beforeEach(() => vi.clearAllMocks())
 
 test('com busca usa searchMovies e ignora filtros', async () => {
-  await loadCatalogPage({ q: 'duna', providerId: 8, genreId: 35, page: 3 }, [8, 119])
+  await loadCatalogPage({ q: 'duna', providerId: 8, genreId: 35, doramas: false, page: 3 }, [8, 119])
   expect(searchMovies).toHaveBeenCalledWith({ query: 'duna', page: 3 })
   expect(discoverMovies).not.toHaveBeenCalled()
 })
 
 test('com serviço escolhido filtra só por ele', async () => {
-  await loadCatalogPage({ providerId: 8, genreId: 35, page: 2 }, [8, 119])
+  await loadCatalogPage({ providerId: 8, genreId: 35, doramas: false, page: 2 }, [8, 119])
   expect(discoverMovies).toHaveBeenCalledWith({ providerIds: [8], genreId: 35, page: 2 })
 })
 
 test('sem serviço escolhido usa todos os serviços dos botões', async () => {
-  await loadCatalogPage({ page: 1 }, [8, 119])
+  await loadCatalogPage({ doramas: false, page: 1 }, [8, 119])
   expect(discoverMovies).toHaveBeenCalledWith({ providerIds: [8, 119], genreId: undefined, page: 1 })
 })
