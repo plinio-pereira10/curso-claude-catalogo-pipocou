@@ -3,7 +3,7 @@ import { loadCatalogPage } from '@/lib/catalog'
 import { filtersToQuery, parseFilters } from '@/lib/filters'
 import { getGenres, getTopProviders } from '@/lib/tmdb/titles'
 import { GenreSelect } from '@/components/GenreSelect'
-import { MovieGrid } from '@/components/MovieGrid'
+import { TitleGrid } from '@/components/TitleGrid'
 import { ProviderFilter } from '@/components/ProviderFilter'
 import { SearchBox } from '@/components/SearchBox'
 
@@ -21,6 +21,7 @@ async function Catalog({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) {
   const { providerId, genreId, q } = filters
   const [providers, genres] = await Promise.all([getTopProviders('movie'), getGenres('movie')])
   const firstPage = await loadCatalogPage(
+    'movie',
     filters,
     providers.map((p) => p.id),
   )
@@ -42,7 +43,7 @@ async function Catalog({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) {
       </div>
 
       {/* key: quando os filtros mudam, a grade recomeça da primeira página */}
-      <MovieGrid key={query} initial={firstPage} query={query} />
+      <TitleGrid key={query} type="movie" initial={firstPage} query={query} />
     </div>
   )
 }

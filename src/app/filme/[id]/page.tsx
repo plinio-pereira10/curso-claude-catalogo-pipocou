@@ -8,7 +8,7 @@ import { posterUrl } from '@/lib/images'
 import { TmdbError } from '@/lib/tmdb/client'
 import { getTitleDetails, getWatchProviders } from '@/lib/tmdb/titles'
 import { BackButton } from '@/components/BackButton'
-import { PosterPlaceholder } from '@/components/MovieCard'
+import { PosterPlaceholder } from '@/components/TitleCard'
 import { WhereToWatch } from '@/components/WhereToWatch'
 
 /** "123" → 123; qualquer outra coisa → null. */
