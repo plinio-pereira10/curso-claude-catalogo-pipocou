@@ -1,8 +1,9 @@
 import { Suspense } from 'react'
-import { parseFilters } from '@/lib/filters'
-import { discoverMovies, getGenres, getTopProviders, searchMovies } from '@/lib/tmdb/movies'
+import { loadCatalogPage } from '@/lib/catalog'
+import { filtersToQuery, parseFilters } from '@/lib/filters'
+import { getGenres, getTopProviders } from '@/lib/tmdb/movies'
 import { GenreSelect } from '@/components/GenreSelect'
-import { MovieCard } from '@/components/MovieCard'
+import { MovieGrid } from '@/components/MovieGrid'
 import { ProviderFilter } from '@/components/ProviderFilter'
 import { SearchBox } from '@/components/SearchBox'
 
@@ -14,20 +15,18 @@ export default function Home({ searchParams }: PageProps<'/'>) {
   )
 }
 
-/** Lê os filtros da URL e busca os filmes no TMDB (sempre no servidor). */
+/** Lê os filtros da URL e busca a primeira página no TMDB (sempre no servidor). */
 async function Catalog({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) {
-  const { providerId, genreId, q } = parseFilters(await searchParams)
+  const filters = { ...parseFilters(await searchParams), page: 1 }
+  const { providerId, genreId, q } = filters
   const [providers, genres] = await Promise.all([getTopProviders(), getGenres()])
-
-  const firstPage = q
-    ? await searchMovies({ query: q, page: 1 })
-    : await discoverMovies({
-        providerIds: providerId ? [providerId] : providers.map((p) => p.id),
-        genreId,
-        page: 1,
-      })
+  const firstPage = await loadCatalogPage(
+    filters,
+    providers.map((p) => p.id),
+  )
 
   const searching = Boolean(q)
+  const query = filtersToQuery({ providerId, genreId, q })
 
   return (
     <div className="space-y-6">
@@ -42,17 +41,8 @@ async function Catalog({ searchParams }: Pick<PageProps<'/'>, 'searchParams'>) {
         )}
       </div>
 
-      {firstPage.results.length === 0 ? (
-        <p className="text-zinc-400">Nenhum filme encontrado.</p>
-      ) : (
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {firstPage.results.map((movie) => (
-            <li key={movie.id}>
-              <MovieCard movie={movie} />
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* key: quando os filtros mudam, a grade recomeça da primeira página */}
+      <MovieGrid key={query} initial={firstPage} query={query} />
     </div>
   )
 }
