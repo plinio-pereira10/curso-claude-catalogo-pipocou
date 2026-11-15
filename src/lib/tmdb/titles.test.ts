@@ -293,3 +293,47 @@ test('getTopProviders e getGenres de séries usam os endpoints de tv', async () 
   await getGenres('tv')
   expect(lastFetchUrl().pathname).toBe('/3/genre/tv/list')
 })
+
+// ---- Romance para séries (palavra-chave) ----
+
+test('Romance em séries usa a palavra-chave 9840', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('tv', { providerIds: [8], genreId: 10749, doramas: true, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.get('with_keywords')).toBe('9840')
+  expect(url.searchParams.has('with_genres')).toBe(false)
+  expect(url.searchParams.get('with_origin_country')).toBe('KR|JP|CN|TW|TH')
+  expect(url.searchParams.get('with_watch_providers')).toBe('8')
+})
+
+test('Romance em filmes continua usando o gênero', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('movie', { providerIds: [8], genreId: 10749, doramas: false, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.get('with_genres')).toBe('10749')
+  expect(url.searchParams.has('with_keywords')).toBe(false)
+})
+
+test('outros gêneros de séries não usam palavra-chave', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('tv', { providerIds: [8], genreId: 18, doramas: false, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.get('with_genres')).toBe('18')
+  expect(url.searchParams.has('with_keywords')).toBe(false)
+})
+
+test('getGenres de séries inclui Romance em ordem alfabética', async () => {
+  mockFetchJson({
+    genres: [
+      { id: 35, name: 'Comédia' },
+      { id: 9648, name: 'Mistério' },
+      { id: 10766, name: 'Soap' },
+    ],
+  })
+  expect((await getGenres('tv')).map((g) => g.name)).toEqual(['Comédia', 'Mistério', 'Romance', 'Soap'])
+})
+
+test('getGenres de filmes não acrescenta nada', async () => {
+  mockFetchJson({ genres: [{ id: 10749, name: 'Romance' }] })
+  expect(await getGenres('movie')).toEqual([{ id: 10749, name: 'Romance' }])
+})

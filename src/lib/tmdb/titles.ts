@@ -58,6 +58,21 @@ function toProvider(raw: RawProvider): Provider {
   return { id: raw.provider_id, name: raw.provider_name, logoPath: raw.logo_path }
 }
 
+// ---- Romance para séries ----
+// O TMDB não tem gênero Romance para séries. Por isso, na aba Séries a opção "Romance"
+// (mesmo número do Romance de filmes) busca pela palavra-chave "romance" do TMDB.
+
+export const ROMANCE_GENRE_ID = 10749
+export const ROMANCE_KEYWORD_ID = 9840
+
+/** Para séries, "Romance" vira palavra-chave; o resto continua como gênero. */
+function genreParams(type: MediaType, genreId: number | undefined) {
+  if (type === 'tv' && genreId === ROMANCE_GENRE_ID) {
+    return { with_genres: undefined, with_keywords: ROMANCE_KEYWORD_ID }
+  }
+  return { with_genres: genreId, with_keywords: undefined }
+}
+
 // ---- Funções usadas pelo site ----
 
 /**
@@ -73,7 +88,7 @@ export async function discoverTitles(
     watch_region: 'BR',
     with_watch_monetization_types: 'flatrate',
     with_watch_providers: opts.providerIds.join('|'),
-    with_genres: opts.genreId,
+    ...genreParams(type, opts.genreId),
     with_origin_country: opts.doramas ? DORAMA_COUNTRIES.join('|') : undefined,
     without_genres: opts.doramas ? doramaExcludedGenres(type).join(',') : undefined,
     sort_by: 'popularity.desc',
@@ -145,5 +160,9 @@ export async function getTopProviders(type: MediaType, limit = 8): Promise<Provi
 
 export async function getGenres(type: MediaType): Promise<Genre[]> {
   const raw = await tmdbFetch<{ genres: Genre[] }>(`/genre/${type}/list`)
-  return raw.genres
+  if (type === 'movie') return raw.genres
+  // Séries: acrescenta "Romance" (por palavra-chave), em ordem alfabética.
+  return [...raw.genres, { id: ROMANCE_GENRE_ID, name: 'Romance' }].sort((a, b) =>
+    a.name.localeCompare(b.name, 'pt-BR'),
+  )
 }
