@@ -51,3 +51,14 @@ test('visitar a mesma página de novo não conta como outra página', async () =
   recordVisit('/filme/7')
   expect(hasInAppHistory()).toBe(false)
 })
+
+test('de volta à primeira página aberta (pelo voltar do navegador), vai para a lista', async () => {
+  const { recordVisit, BackButton } = await load()
+  recordVisit('/serie/5') // abriu pelo WhatsApp
+  recordVisit('/series') // clicou na aba Séries
+  recordVisit('/serie/5') // voltou com o botão do navegador
+  render(<BackButton type="tv" />)
+  await userEvent.click(screen.getByRole('button', { name: '← voltar' }))
+  expect(push).toHaveBeenCalledWith('/series')
+  expect(back).not.toHaveBeenCalled()
+})
