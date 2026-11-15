@@ -61,7 +61,7 @@ test('429 e depois 200 → tenta de novo', async () => {
 
 test('404 → não tenta de novo e lança TmdbError 404', async () => {
   fetchMock.mockResolvedValue(json({}, 404))
-  const err = await run(tmdbFetch("/x")).catch((e: TmdbError) => e)
+  const err = await run(tmdbFetch<never>('/x')).catch((e: TmdbError) => e)
   expect(err).toBeInstanceOf(TmdbError)
   expect(err.status).toBe(404)
   expect(fetchMock).toHaveBeenCalledTimes(1)
@@ -69,7 +69,7 @@ test('404 → não tenta de novo e lança TmdbError 404', async () => {
 
 test('três respostas 500 → lança TmdbError 500', async () => {
   fetchMock.mockImplementation(async () => json({}, 500))
-  const err = await run(tmdbFetch("/x")).catch((e: TmdbError) => e)
+  const err = await run(tmdbFetch<never>('/x')).catch((e: TmdbError) => e)
   expect(err).toBeInstanceOf(TmdbError)
   expect(err.status).toBe(500)
   expect(fetchMock).toHaveBeenCalledTimes(3)
