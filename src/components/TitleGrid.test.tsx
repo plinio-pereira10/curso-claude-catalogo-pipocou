@@ -6,7 +6,7 @@ import type { TitleSummary } from '@/lib/tmdb/types'
 const fetchMock = vi.fn()
 
 function item(id: number, title: string): TitleSummary {
-  return { id, title, posterPath: null, releaseYear: 2024, voteAverage: 7 }
+  return { id, title, posterPath: null, backdropPath: null, overview: '', releaseYear: 2024, voteAverage: 7 }
 }
 
 function mockFetchJson(body: unknown, status = 200) {

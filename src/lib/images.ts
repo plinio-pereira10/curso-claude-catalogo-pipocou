@@ -12,3 +12,11 @@ export function posterUrl(path: string | null, size: PosterSize = 'w342'): strin
 export function logoUrl(path: string): string {
   return `${IMAGE_BASE}/w92${path}`
 }
+
+export type BackdropSize = 'w780' | 'w1280'
+
+/** URL da imagem de cena (deitada) no TMDB, ou null quando não tem. */
+export function backdropUrl(path: string | null, size: BackdropSize = 'w780'): string | null {
+  if (!path) return null
+  return `${IMAGE_BASE}/${size}${path}`
+}

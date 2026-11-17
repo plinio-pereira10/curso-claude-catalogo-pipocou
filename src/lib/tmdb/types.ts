@@ -3,8 +3,12 @@ export type TitleSummary = {
   id: number
   title: string
   posterPath: string | null
+  /** Imagem de cena (deitada), usada no banner e nos cartões. */
+  backdropPath: string | null
   releaseYear: number | null
   voteAverage: number
+  /** Sinopse ('' quando o TMDB não tem). */
+  overview: string
 }
 
 /** Uma página de resultados. `totalPages` já vem limitado a 500 (limite do TMDB). */
@@ -28,7 +32,6 @@ export type Genre = {
 
 /** Todas as informações da tela de detalhes. */
 export type TitleDetails = TitleSummary & {
-  overview: string
   /** Duração em minutos (só filmes). */
   runtime: number | null
   /** Número de temporadas (só séries). */

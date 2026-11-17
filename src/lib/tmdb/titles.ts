@@ -16,6 +16,8 @@ type RawTitle = {
   title?: string
   name?: string
   poster_path: string | null
+  backdrop_path?: string | null
+  overview?: string
   release_date?: string
   first_air_date?: string
   vote_average: number
@@ -43,8 +45,10 @@ function toTitleSummary(raw: RawTitle): TitleSummary {
     id: raw.id,
     title: raw.title ?? raw.name ?? '',
     posterPath: raw.poster_path,
+    backdropPath: raw.backdrop_path ?? null,
     releaseYear: Number.isNaN(year) ? null : year,
     voteAverage: raw.vote_average,
+    overview: raw.overview ?? '',
   }
 }
 
@@ -103,6 +107,32 @@ export async function discoverTitles(
   return toTitlePage(raw)
 }
 
+/**
+ * Uma fileira da tela inicial: os títulos mais populares de um streaming (página 1).
+ * Guardada por 1 hora no servidor ('hours'), para a tela inicial não buscar tudo a cada visita.
+ */
+export async function getProviderRow(type: MediaType, providerId: number): Promise<TitleSummary[]> {
+  'use cache'
+  cacheLife('hours')
+  const page = await discoverTitles(type, { providerIds: [providerId], doramas: false, page: 1 })
+  return page.results
+}
+
+/**
+ * A arte com o nome do título (logo), usada no banner. Prefere português, depois inglês,
+ * depois sem idioma. Sem logo → null. Guardada por 1 hora no servidor ('hours').
+ */
+export async function getTitleLogo(type: MediaType, id: number): Promise<string | null> {
+  'use cache'
+  cacheLife('hours')
+  const raw = await tmdbFetch<{ logos: { file_path: string; iso_639_1: string | null }[] }>(`/${type}/${id}/images`, {
+    include_image_language: 'pt,en,null',
+  })
+  const byLanguage = (lang: string | null) => raw.logos.find((l) => l.iso_639_1 === lang)
+  const logo = byLanguage('pt') ?? byLanguage('en') ?? byLanguage(null)
+  return logo?.file_path ?? null
+}
+
 /** Busca por nome (não filtra por streaming — limitação do TMDB). */
 export async function searchTitles(type: MediaType, opts: { query: string; page: number }): Promise<TitlePage> {
   const raw = await tmdbFetch<RawPage>(`/search/${type}`, { query: opts.query, page: opts.page })
@@ -111,11 +141,10 @@ export async function searchTitles(type: MediaType, opts: { query: string; page:
 
 export async function getTitleDetails(type: MediaType, id: number): Promise<TitleDetails> {
   const raw = await tmdbFetch<
-    RawTitle & { overview: string; runtime?: number | null; number_of_seasons?: number | null; genres: Genre[] }
+    RawTitle & { runtime?: number | null; number_of_seasons?: number | null; genres: Genre[] }
   >(`/${type}/${id}`)
   return {
     ...toTitleSummary(raw),
-    overview: raw.overview,
     runtime: type === 'movie' ? (raw.runtime ?? null) : null,
     seasons: type === 'tv' ? (raw.number_of_seasons ?? null) : null,
     genres: raw.genres,

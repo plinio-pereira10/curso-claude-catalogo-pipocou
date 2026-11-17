@@ -8,6 +8,8 @@ import {
   getWatchProviders,
   getTopProviders,
   getGenres,
+  getProviderRow,
+  getTitleLogo,
 } from './titles'
 import { TmdbError } from './client'
 import { cacheLife } from 'next/cache'
@@ -62,7 +64,9 @@ test('discoverTitles de filmes envia os parâmetros fixos e junta serviços com 
   expect(r).toEqual({
     page: 1,
     totalPages: 500,
-    results: [{ id: 1, title: 'Duna', posterPath: '/d.jpg', releaseYear: 2024, voteAverage: 8.2 }],
+    results: [
+      { id: 1, title: 'Duna', posterPath: '/d.jpg', backdropPath: null, overview: '', releaseYear: 2024, voteAverage: 8.2 },
+    ],
   })
 })
 
@@ -110,6 +114,7 @@ test('getTitleDetails de filme mapeia duração, gêneros, sinopse e seasons nul
     id: 7,
     title: 'Duna',
     posterPath: '/d.jpg',
+    backdropPath: null,
     releaseYear: 2024,
     voteAverage: 8.2,
     overview: 'Paul...',
@@ -376,4 +381,54 @@ test('sem nota não envia vote_average.gte nem vote_count.gte', async () => {
   const url = lastFetchUrl()
   expect(url.searchParams.has('vote_average.gte')).toBe(false)
   expect(url.searchParams.has('vote_count.gte')).toBe(false)
+})
+
+// ---- Visual estilo streaming ----
+
+test('discoverTitles converte backdrop_path e overview', async () => {
+  mockFetchJson({
+    page: 1,
+    total_pages: 1,
+    results: [
+      { id: 1, title: 'A', poster_path: null, backdrop_path: '/b.jpg', overview: 'Sinopse', vote_average: 7 },
+      { id: 2, title: 'B', poster_path: null, vote_average: 7 },
+    ],
+  })
+  const r = await discoverTitles('movie', { providerIds: [8], doramas: false, page: 1 })
+  expect(r.results[0]).toMatchObject({ backdropPath: '/b.jpg', overview: 'Sinopse' })
+  expect(r.results[1]).toMatchObject({ backdropPath: null, overview: '' })
+})
+
+test('getProviderRow pede só aquele streaming, página 1, e guarda por hours', async () => {
+  mockFetchJson({ page: 1, total_pages: 9, results: [{ id: 3, name: 'S', poster_path: null, vote_average: 7 }] })
+  const titles = await getProviderRow('tv', 337)
+  const url = lastFetchUrl()
+  expect(url.pathname).toBe('/3/discover/tv')
+  expect(url.searchParams.get('with_watch_providers')).toBe('337')
+  expect(url.searchParams.get('page')).toBe('1')
+  expect(cacheLife).toHaveBeenCalledWith('hours')
+  expect(titles.map((t) => t.id)).toEqual([3])
+})
+
+test('getTitleLogo prefere pt, depois en', async () => {
+  mockFetchJson({
+    logos: [
+      { file_path: '/en.png', iso_639_1: 'en' },
+      { file_path: '/pt.png', iso_639_1: 'pt' },
+    ],
+  })
+  expect(await getTitleLogo('movie', 7)).toBe('/pt.png')
+  const url = lastFetchUrl()
+  expect(url.pathname).toBe('/3/movie/7/images')
+  expect(url.searchParams.get('include_image_language')).toBe('pt,en,null')
+  expect(cacheLife).toHaveBeenCalledWith('hours')
+
+  mockFetchJson({ logos: [{ file_path: '/x.png', iso_639_1: null }, { file_path: '/en.png', iso_639_1: 'en' }] })
+  expect(await getTitleLogo('movie', 7)).toBe('/en.png')
+
+  mockFetchJson({ logos: [{ file_path: '/x.png', iso_639_1: null }] })
+  expect(await getTitleLogo('tv', 9)).toBe('/x.png')
+
+  mockFetchJson({ logos: [] })
+  expect(await getTitleLogo('movie', 7)).toBeNull()
 })
