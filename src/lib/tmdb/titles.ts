@@ -119,17 +119,21 @@ export async function getProviderRow(type: MediaType, providerId: number): Promi
 }
 
 /**
- * A arte com o nome do título (logo), usada no banner. Prefere português, depois inglês,
- * depois sem idioma. Sem logo → null. Guardada por 1 hora no servidor ('hours').
+ * A arte com o nome do título (logo), usada no banner. Prefere português do Brasil, depois
+ * qualquer português (ex.: Portugal, onde o nome pode ser outro), depois inglês, depois sem
+ * idioma. Sem logo → null. Guardada por 1 hora no servidor ('hours').
  */
 export async function getTitleLogo(type: MediaType, id: number): Promise<string | null> {
   'use cache'
   cacheLife('hours')
-  const raw = await tmdbFetch<{ logos: { file_path: string; iso_639_1: string | null }[] }>(`/${type}/${id}/images`, {
+  const raw = await tmdbFetch<{
+    logos: { file_path: string; iso_639_1: string | null; iso_3166_1?: string | null }[]
+  }>(`/${type}/${id}/images`, {
     include_image_language: 'pt,en,null',
   })
   const byLanguage = (lang: string | null) => raw.logos.find((l) => l.iso_639_1 === lang)
-  const logo = byLanguage('pt') ?? byLanguage('en') ?? byLanguage(null)
+  const brazilian = raw.logos.find((l) => l.iso_639_1 === 'pt' && l.iso_3166_1 === 'BR')
+  const logo = brazilian ?? byLanguage('pt') ?? byLanguage('en') ?? byLanguage(null)
   return logo?.file_path ?? null
 }
 

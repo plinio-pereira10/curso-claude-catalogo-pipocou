@@ -441,3 +441,24 @@ test('getTitleLogo prefere pt, depois en', async () => {
   mockFetchJson({ logos: [] })
   expect(await getTitleLogo('movie', 7)).toBeNull()
 })
+
+test('getTitleLogo prefere o logo do Brasil ao de Portugal', async () => {
+  // Caso real: "Devoradores de Estrelas" (BR) vs "Projeto Hail Mary" (PT).
+  mockFetchJson({
+    logos: [
+      { file_path: '/en.png', iso_639_1: 'en', iso_3166_1: 'US' },
+      { file_path: '/pt-pt.png', iso_639_1: 'pt', iso_3166_1: 'PT' },
+      { file_path: '/pt-br.png', iso_639_1: 'pt', iso_3166_1: 'BR' },
+    ],
+  })
+  expect(await getTitleLogo('movie', 687163)).toBe('/pt-br.png')
+
+  // Sem logo do Brasil, o de Portugal ainda vence o inglês.
+  mockFetchJson({
+    logos: [
+      { file_path: '/en.png', iso_639_1: 'en', iso_3166_1: 'US' },
+      { file_path: '/pt-pt.png', iso_639_1: 'pt', iso_3166_1: 'PT' },
+    ],
+  })
+  expect(await getTitleLogo('movie', 687163)).toBe('/pt-pt.png')
+})
