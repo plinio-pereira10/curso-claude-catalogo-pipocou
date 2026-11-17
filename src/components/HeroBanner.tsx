@@ -18,7 +18,10 @@ export const ROTATE_MS = 8000
  */
 export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedItem[] }) {
   const [index, setIndex] = useState(0)
-  const [paused, setPaused] = useState(false)
+  // mouse em cima e foco do teclado dentro pausam separadamente: um não desfaz o outro
+  const [hovered, setHovered] = useState(false)
+  const [focusInside, setFocusInside] = useState(false)
+  const paused = hovered || focusInside
   const count = items.length
 
   useEffect(() => {
@@ -38,10 +41,13 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
       aria-roledescription="carrossel"
       aria-label="Destaques"
       className="relative h-[75vh] min-h-[34rem] overflow-hidden sm:h-[65vh] sm:min-h-[28rem] lg:h-[70vh]"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocusInside(true)}
+      onBlur={(e) => {
+        // só sai do "foco dentro" quando o foco vai para fora do banner
+        if (!e.currentTarget.contains(e.relatedTarget)) setFocusInside(false)
+      }}
     >
       {/* Todas as imagens ficam empilhadas; só a do destaque atual aparece (troca com fade). */}
       {items.map((item, i) => (

@@ -97,3 +97,13 @@ test('com 1 destaque não mostra bolinhas; sem destaques não mostra nada', () =
   expect(empty.container).toBeEmptyDOMElement()
   expect(container).toBeEmptyDOMElement()
 })
+
+test('continua parado se o mouse sai mas o foco do teclado ainda está no banner', () => {
+  render(<HeroBanner type="movie" items={[item(1), item(2)]} />)
+  const region = screen.getByRole('region', { name: 'Destaques' })
+  act(() => screen.getByRole('link', { name: 'Ver detalhes' }).focus())
+  fireEvent.mouseEnter(region)
+  fireEvent.mouseLeave(region)
+  act(() => vi.advanceTimersByTime(ROTATE_MS * 2))
+  expect(currentTitle()).toBe('/filme/1')
+})

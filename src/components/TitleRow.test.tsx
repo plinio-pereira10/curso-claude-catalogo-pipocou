@@ -53,3 +53,10 @@ test('setas rolam a fileira', async () => {
   expect(scrollBy.mock.calls[1][0].left).toBe(-900)
   vi.restoreAllMocks()
 })
+
+test('setas invisíveis não pegam toques nos cartões', () => {
+  render(<TitleRow type="movie" row={row(3)} />)
+  for (const name of ['Rolar para a esquerda', 'Rolar para a direita']) {
+    expect(screen.getByRole('button', { name }).className).toContain('pointer-events-none')
+  }
+})

@@ -25,7 +25,7 @@ export function TitleRow({ type, row }: { type: MediaType; row: ProviderRow }) {
     list.scrollBy({ left: direction * list.clientWidth * SCROLL_FRACTION, behavior: reduce ? 'auto' : 'smooth' })
   }
 
-  const arrow = `absolute inset-y-0 z-10 hidden w-12 items-center justify-center text-3xl opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 md:flex ${FOCUS_RING}`
+  const arrow = `absolute inset-y-0 z-10 hidden w-12 items-center justify-center text-3xl pointer-events-none opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 focus-visible:pointer-events-auto focus-visible:opacity-100 md:flex ${FOCUS_RING}`
 
   return (
     <section aria-labelledby={headingId}>
