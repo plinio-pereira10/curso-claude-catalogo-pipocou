@@ -220,7 +220,15 @@ test('séries usam name e first_air_date', async () => {
     results: [{ id: 5, name: 'Pousando no Amor', poster_path: '/p.jpg', first_air_date: '2019-12-14', vote_average: 8.7 }],
   })
   const r = await discoverTitles('tv', { providerIds: [8], doramas: false, page: 1 })
-  expect(r.results[0]).toEqual({ id: 5, title: 'Pousando no Amor', posterPath: '/p.jpg', releaseYear: 2019, voteAverage: 8.7 })
+  expect(r.results[0]).toEqual({
+    id: 5,
+    title: 'Pousando no Amor',
+    posterPath: '/p.jpg',
+    backdropPath: null,
+    overview: '',
+    releaseYear: 2019,
+    voteAverage: 8.7,
+  })
 })
 
 test('Doramas em séries envia países e exclui animação/reality/talk/news', async () => {
@@ -271,6 +279,7 @@ test('getTitleDetails de série mapeia temporadas e runtime null', async () => {
     id: 5,
     title: 'Pousando no Amor',
     posterPath: '/p.jpg',
+    backdropPath: null,
     releaseYear: 2019,
     voteAverage: 8.7,
     overview: 'Uma herdeira...',
