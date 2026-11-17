@@ -6,10 +6,10 @@ import { MEDIA, type MediaType } from '@/lib/media'
 import { getGenres, getTopProviders } from '@/lib/tmdb/titles'
 import { DoramasToggle } from './DoramasToggle'
 import { GenreSelect } from './GenreSelect'
-import { ProviderFilter } from './ProviderFilter'
 import { RatingSelect } from './RatingSelect'
-import { SearchBox } from './SearchBox'
 import { TitleGrid } from './TitleGrid'
+import { TopBar } from './TopBar'
+import { GUTTER } from '@/lib/ui'
 
 type Props = {
   type: MediaType
@@ -19,7 +19,14 @@ type Props = {
 /** A lista do catálogo, usada pela aba Filmes (/) e pela aba Séries (/series). */
 export function CatalogPage({ type, searchParams }: Props) {
   return (
-    <Suspense fallback={<p className="text-zinc-400">Carregando…</p>}>
+    <Suspense
+      fallback={
+        <>
+          <TopBar type={type} />
+          <p className={`${GUTTER} py-6 text-suave`}>Carregando…</p>
+        </>
+      }
+    >
       <Catalog type={type} searchParams={searchParams} />
     </Suspense>
   )
@@ -41,10 +48,10 @@ async function Catalog({ type, searchParams }: Props) {
   const query = filtersToQuery(current)
 
   return (
-    <div className="space-y-6">
+    <>
+      <TopBar type={type} providers={providers} filters={current} />
+      <div className={`${GUTTER} space-y-6 py-6`}>
       <div className="space-y-3">
-        <SearchBox key={q ?? ''} type={type} initialQuery={q} />
-        <ProviderFilter type={type} providers={providers} filters={current} disabled={searching} />
         <div className="flex flex-wrap items-center gap-4">
           <GenreSelect
             type={type}
@@ -60,6 +67,7 @@ async function Catalog({ type, searchParams }: Props) {
 
       {/* key: quando os filtros mudam, a grade recomeça da primeira página */}
       <TitleGrid key={`${type}?${query}`} type={type} initial={firstPage} query={query} />
-    </div>
+      </div>
+    </>
   )
 }

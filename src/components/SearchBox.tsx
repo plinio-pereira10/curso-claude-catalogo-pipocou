@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { listHref, MEDIA, type MediaType } from '@/lib/media'
+import { FOCUS_RING } from '@/lib/ui'
 
 /** Busca por nome. Envia com Enter ou com o botão; "Limpar" volta para a lista normal. */
 export function SearchBox({ type, initialQuery = '' }: { type: MediaType; initialQuery?: string }) {
@@ -28,13 +29,20 @@ export function SearchBox({ type, initialQuery = '' }: { type: MediaType; initia
         onChange={(e) => setText(e.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="w-full rounded border border-white/20 bg-zinc-900 px-3 py-1.5 text-sm sm:w-72"
+        className={`w-full min-w-0 rounded-full border border-linha bg-superficie/80 px-4 py-1.5 text-sm placeholder:text-suave sm:w-56 ${FOCUS_RING}`}
       />
-      <button type="submit" className="rounded bg-white px-3 py-1.5 text-sm font-medium text-black">
+      <button
+        type="submit"
+        className={`shrink-0 rounded-full bg-texto px-4 py-1.5 text-sm font-semibold text-noite ${FOCUS_RING}`}
+      >
         Buscar
       </button>
       {initialQuery && (
-        <button type="button" onClick={clear} className="rounded border border-white/20 px-3 py-1.5 text-sm">
+        <button
+          type="button"
+          onClick={clear}
+          className={`shrink-0 rounded-full border border-linha px-4 py-1.5 text-sm ${FOCUS_RING}`}
+        >
           Limpar
         </button>
       )}

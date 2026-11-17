@@ -1,18 +1,36 @@
 @import "tailwindcss";
 
+/* Paleta "azul-noite" (ver docs/superpowers/specs/2026-11-16-visual-streaming-design.md). */
 :root {
-  --background: #0b0b0f;
-  --foreground: #ededed;
+  --noite: #0d1520;
+  --superficie: #1a2533;
+  --linha: #2c3a4b;
+  --texto: #f1f4f8;
+  --suave: #93a1b2;
+  --ambar: #f2c14e;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-noite: var(--noite);
+  --color-superficie: var(--superficie);
+  --color-linha: var(--linha);
+  --color-texto: var(--texto);
+  --color-suave: var(--suave);
+  --color-ambar: var(--ambar);
+  --font-sans: var(--font-figtree);
+}
+
+/* Esconde a barra de rolagem das faixas que rolam para o lado (continua rolando). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background: var(--noite);
+  color: var(--texto);
+  font-family: var(--font-figtree), system-ui, sans-serif;
 }

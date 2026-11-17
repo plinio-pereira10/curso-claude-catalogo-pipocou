@@ -15,3 +15,9 @@ test('ProviderFilter mantém nota e gênero', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Netflix' }))
   expect(push).toHaveBeenCalledWith('/?provider=8&genre=18&nota=8')
 })
+
+test('ProviderFilter mostra só o logo, com o nome como nome acessível', () => {
+  render(<ProviderFilter type="movie" providers={providers} filters={{ doramas: false }} disabled={false} />)
+  expect(screen.getByRole('button', { name: 'Netflix' })).toBeInTheDocument()
+  expect(screen.queryByText('Netflix')).toBeNull()
+})

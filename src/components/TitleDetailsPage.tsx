@@ -11,6 +11,8 @@ import { TmdbError } from '@/lib/tmdb/client'
 import { getTitleDetails, getWatchProviders } from '@/lib/tmdb/titles'
 import { BackButton } from './BackButton'
 import { PosterPlaceholder } from './TitleCard'
+import { TopBar } from './TopBar'
+import { GUTTER } from '@/lib/ui'
 import { WhereToWatch } from './WhereToWatch'
 
 type Params = Promise<{ id: string }>
@@ -51,12 +53,15 @@ export async function titleMetadata(type: MediaType, params: Params): Promise<Me
 /** Página de detalhes, usada por /filme/[id] e /serie/[id]. */
 export function TitleDetailsPage({ type, params }: { type: MediaType; params: Params }) {
   return (
-    <div className="space-y-6">
-      <BackButton type={type} />
-      <Suspense fallback={<p className="text-zinc-400">Carregando…</p>}>
-        <TitleDetailsView type={type} params={params} />
-      </Suspense>
-    </div>
+    <>
+      <TopBar type={type} />
+      <div className={`${GUTTER} space-y-6 py-6`}>
+        <BackButton type={type} />
+        <Suspense fallback={<p className="text-suave">Carregando…</p>}>
+          <TitleDetailsView type={type} params={params} />
+        </Suspense>
+      </div>
+    </>
   )
 }
 
@@ -100,11 +105,15 @@ async function TitleDetailsView({ type, params }: { type: MediaType; params: Par
 /** Página "não encontrado" de filmes e séries. */
 export function TitleNotFound({ type }: { type: MediaType }) {
   return (
-    <div className="space-y-4 py-10 text-center">
-      <p>{MEDIA[type].notFound}</p>
-      <Link href={MEDIA[type].listPath} className="underline">
-        Voltar para a lista
-      </Link>
-    </div>
+    <>
+      {/* O menu fica aqui também: ele conta as visitas usadas pelo "← voltar". */}
+      <TopBar type={type} />
+      <div className={`${GUTTER} space-y-4 py-10 text-center`}>
+        <p>{MEDIA[type].notFound}</p>
+        <Link href={MEDIA[type].listPath} className="underline">
+          Voltar para a lista
+        </Link>
+      </div>
+    </>
   )
 }

@@ -1,13 +1,15 @@
+import { GUTTER } from '@/lib/ui'
+
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-white/10 px-4 py-6 text-center text-sm text-zinc-400">
+    <footer className={`mt-auto border-t border-linha py-6 text-sm text-suave ${GUTTER}`}>
       <p>
         Dados de filmes e séries fornecidos pelo{' '}
-        <a href="https://www.themoviedb.org" className="underline hover:text-white" target="_blank" rel="noreferrer">
+        <a href="https://www.themoviedb.org" className="underline hover:text-texto" target="_blank" rel="noreferrer">
           TMDB
         </a>
         . Disponibilidade em streaming fornecida pelo{' '}
-        <a href="https://www.justwatch.com" className="underline hover:text-white" target="_blank" rel="noreferrer">
+        <a href="https://www.justwatch.com" className="underline hover:text-texto" target="_blank" rel="noreferrer">
           JustWatch
         </a>
         .

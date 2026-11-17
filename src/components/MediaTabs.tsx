@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { parseFilters } from '@/lib/filters'
 import { MEDIA, switchTabHref, type MediaType } from '@/lib/media'
 import { recordVisit } from '@/lib/navigation-history'
+import { FOCUS_RING } from '@/lib/ui'
 
 const TABS: MediaType[] = ['movie', 'tv']
 
@@ -41,7 +42,9 @@ function TabLinks({ active, hrefFor }: { active: MediaType | null; hrefFor: (typ
             key={type}
             href={hrefFor(type)}
             aria-current={isActive ? 'page' : undefined}
-            className={`rounded px-3 py-1 text-sm ${isActive ? 'bg-white font-medium text-black' : 'text-zinc-300 hover:text-white'}`}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${FOCUS_RING} ${
+              isActive ? 'bg-texto text-noite' : 'text-texto/80 hover:bg-white/10 hover:text-texto'
+            }`}
           >
             {MEDIA[type].label}
           </Link>
