@@ -1,3 +1,5 @@
+import { CatalogSkeleton } from '@/components/CatalogSkeleton'
+
 export default function Loading() {
-  return <p className="text-zinc-400">Carregando…</p>
+  return <CatalogSkeleton />
 }
