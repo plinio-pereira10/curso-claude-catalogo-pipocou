@@ -183,8 +183,10 @@ Tudo alinhado à esquerda, com a mesma margem esquerda do banner, das fileiras e
 - Nova função `getTitleLogo(type, id)` em `titles.ts`: chama `/{type}/{id}/images` com
   `include_image_language=pt,en,null`, devolve o caminho do primeiro logo (prefere `pt`) ou `null`.
   Guardada em cache por horas (`'use cache'` + `cacheLife('hours')`).
-- As fileiras usam `discoverTitles` como hoje; o modo fileiras pode ser guardado em cache como as
-  listas já são.
+- As fileiras usam `discoverTitles` como hoje. Hoje a lista **não** fica em cache (só streamings e
+  gêneros ficam). As fileiras e os logos do banner passam a ficar em cache por 1 hora
+  (`'use cache'` + `cacheLife('hours')`), para o TMDB ser chamado no máximo uma vez por hora em cada aba.
+  A grade filtrada continua sem cache, como hoje.
 - `next.config.ts` já libera `image.tmdb.org/t/p/**` — não muda.
 
 ## Testes
