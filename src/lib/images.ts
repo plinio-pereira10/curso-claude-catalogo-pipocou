@@ -20,3 +20,8 @@ export function backdropUrl(path: string | null, size: BackdropSize = 'w780'): s
   if (!path) return null
   return `${IMAGE_BASE}/${size}${path}`
 }
+
+/** URL da arte com o nome do título (banner). Maior que o logo dos streamings. */
+export function titleLogoUrl(path: string): string {
+  return `${IMAGE_BASE}/w500${path}`
+}

@@ -1,4 +1,4 @@
-import { backdropUrl, posterUrl, logoUrl } from './images'
+import { backdropUrl, posterUrl, logoUrl, titleLogoUrl } from './images'
 
 test('posterUrl monta a URL com tamanho padrão w342', () => {
   expect(posterUrl('/abc.jpg')).toBe('https://image.tmdb.org/t/p/w342/abc.jpg')
@@ -20,4 +20,8 @@ test('backdropUrl usa w780 por padrão, aceita w1280 e devolve null sem imagem',
   expect(backdropUrl('/b.jpg')).toBe('https://image.tmdb.org/t/p/w780/b.jpg')
   expect(backdropUrl('/b.jpg', 'w1280')).toBe('https://image.tmdb.org/t/p/w1280/b.jpg')
   expect(backdropUrl(null)).toBeNull()
+})
+
+test('titleLogoUrl usa w500', () => {
+  expect(titleLogoUrl('/t.png')).toBe('https://image.tmdb.org/t/p/w500/t.png')
 })
