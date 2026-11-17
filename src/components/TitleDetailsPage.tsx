@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { summarizeAvailability } from '@/lib/availability'
 import { formatRating, formatRuntime, formatSeasons } from '@/lib/format'
-import { posterUrl } from '@/lib/images'
+import { backdropUrl, posterUrl } from '@/lib/images'
 import { MEDIA, type MediaType } from '@/lib/media'
 import { TmdbError } from '@/lib/tmdb/client'
 import { getTitleDetails, getWatchProviders } from '@/lib/tmdb/titles'
@@ -53,52 +53,85 @@ export async function titleMetadata(type: MediaType, params: Params): Promise<Me
 /** Página de detalhes, usada por /filme/[id] e /serie/[id]. */
 export function TitleDetailsPage({ type, params }: { type: MediaType; params: Params }) {
   return (
-    <>
-      <TopBar type={type} />
-      <div className={`${GUTTER} space-y-6 py-6`}>
-        <BackButton type={type} />
-        <Suspense fallback={<p className="text-suave">Carregando…</p>}>
-          <TitleDetailsView type={type} params={params} />
-        </Suspense>
-      </div>
-    </>
+    <Suspense
+      fallback={
+        <>
+          <TopBar type={type} />
+          <p className={`${GUTTER} py-6 text-suave`}>Carregando…</p>
+        </>
+      }
+    >
+      <TitleDetailsView type={type} params={params} />
+    </Suspense>
   )
 }
 
 async function TitleDetailsView({ type, params }: { type: MediaType; params: Params }) {
   const { details, availability, brazilLink } = await loadTitle(type, (await params).id)
-  const src = posterUrl(details.posterPath, 'w500')
+  const poster = posterUrl(details.posterPath, 'w500')
+  const backdrop = backdropUrl(details.backdropPath, 'w1280')
   const runtime = formatRuntime(details.runtime)
   const seasons = formatSeasons(details.seasons)
 
   return (
-    <article className="flex flex-col gap-6 sm:flex-row">
-      <div className="w-full max-w-xs shrink-0">
-        {src ? (
-          <Image src={src} alt={details.title} width={500} height={750} className="w-full rounded-lg" priority />
-        ) : (
-          <PosterPlaceholder title={details.title} />
-        )}
+    <>
+      {/* Com imagem de cena, o menu fica por cima dela. */}
+      <TopBar type={type} overlay={Boolean(backdrop)} />
+
+      {backdrop && (
+        <div className="relative h-[45vh] min-h-72 lg:h-[60vh]">
+          <Image src={backdrop} alt="" fill sizes="100vw" priority className="object-cover object-[70%_20%]" />
+          <div className="absolute inset-0 bg-linear-to-r from-noite/80 via-noite/30 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-3/4 bg-linear-to-t from-noite via-noite/70 to-transparent" />
+        </div>
+      )}
+
+      <div className={`relative ${GUTTER} space-y-6 pb-12 ${backdrop ? '-mt-40 lg:-mt-56' : 'pt-6'}`}>
+        <BackButton type={type} />
+
+        <article className="flex flex-col gap-6 sm:flex-row sm:gap-8">
+          <div className="w-40 shrink-0 sm:w-56">
+            {poster ? (
+              <Image
+                src={poster}
+                alt={details.title}
+                width={500}
+                height={750}
+                className="w-full rounded-lg shadow-2xl shadow-black/60"
+                priority
+              />
+            ) : (
+              <PosterPlaceholder title={details.title} />
+            )}
+          </div>
+
+          <div className="space-y-4 sm:pt-16 lg:pt-28">
+            <h1 className="text-3xl leading-tight font-extrabold text-balance">
+              {details.title}
+              {details.releaseYear && <span className="font-normal text-suave"> ({details.releaseYear})</span>}
+            </h1>
+
+            <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-texto/85">
+              <span>
+                {details.voteAverage > 0 && (
+                  <span aria-hidden className="mr-1 text-ambar">
+                    ★
+                  </span>
+                )}
+                {formatRating(details.voteAverage)}
+              </span>
+              {runtime && <span>{runtime}</span>}
+              {seasons && <span>{seasons}</span>}
+              {details.genres.length > 0 && <span>{details.genres.map((g) => g.name).join(', ')}</span>}
+            </p>
+
+            <p className="max-w-2xl leading-relaxed">{details.overview || 'Sinopse não disponível.'}</p>
+
+            <WhereToWatch availability={availability} brazilLink={brazilLink} />
+          </div>
+        </article>
       </div>
-
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold">
-          {details.title}
-          {details.releaseYear && <span className="font-normal text-zinc-400"> ({details.releaseYear})</span>}
-        </h1>
-
-        <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-300">
-          <span>⭐ {formatRating(details.voteAverage)}</span>
-          {runtime && <span>⏱ {runtime}</span>}
-          {seasons && <span>📺 {seasons}</span>}
-          {details.genres.length > 0 && <span>{details.genres.map((g) => g.name).join(', ')}</span>}
-        </p>
-
-        <p className="max-w-2xl leading-relaxed">{details.overview || 'Sinopse não disponível.'}</p>
-
-        <WhereToWatch availability={availability} brazilLink={brazilLink} />
-      </div>
-    </article>
+    </>
   )
 }
 

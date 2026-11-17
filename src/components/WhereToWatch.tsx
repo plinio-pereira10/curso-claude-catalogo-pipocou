@@ -21,7 +21,7 @@ export function WhereToWatch({ availability, brazilLink }: Props) {
   if (brazil.length > 0) {
     return (
       <section>
-        <h2 className="mb-2 font-semibold">Onde assistir</h2>
+        <h2 className="mb-3 text-lg font-semibold">Onde assistir</h2>
         <div className="flex flex-wrap gap-3">
           {brazil.map((p) => (
             <Image
@@ -40,7 +40,7 @@ export function WhereToWatch({ availability, brazilLink }: Props) {
             href={brazilLink}
             target="_blank"
             rel="noreferrer"
-            className="mt-3 inline-block text-sm underline hover:text-white"
+            className="mt-3 inline-block text-sm underline hover:text-texto"
           >
             Onde Assistir ↗
           </a>
@@ -52,8 +52,8 @@ export function WhereToWatch({ availability, brazilLink }: Props) {
   if (otherCountries.length === 0) {
     return (
       <section>
-        <h2 className="mb-2 font-semibold">Onde assistir</h2>
-        <p className="text-zinc-400">Não disponível em streaming no momento.</p>
+        <h2 className="mb-3 text-lg font-semibold">Onde assistir</h2>
+        <p className="text-suave">Não disponível em streaming no momento.</p>
       </section>
     )
   }
@@ -62,10 +62,10 @@ export function WhereToWatch({ availability, brazilLink }: Props) {
 
   return (
     <section>
-      <h2 className="mb-2 font-semibold">Onde assistir</h2>
-      <p className="text-zinc-400">Não disponível em streaming no Brasil.</p>
+      <h2 className="mb-3 text-lg font-semibold">Onde assistir</h2>
+      <p className="text-suave">Não disponível em streaming no Brasil.</p>
       <p className="mt-3">Disponível em outros países:</p>
-      <ul className="mt-1 space-y-1 text-sm text-zinc-300">
+      <ul className="mt-1 space-y-1 text-sm text-texto/85">
         {visible.map((c) => (
           <li key={c.code}>
             {c.name} — {c.providers.map((p) => p.name).join(', ')}
