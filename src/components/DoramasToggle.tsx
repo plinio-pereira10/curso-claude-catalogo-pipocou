@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { effectiveGenreId } from '@/lib/doramas'
 import type { Filters } from '@/lib/filters'
 import { listHref, type MediaType } from '@/lib/media'
+import { FOCUS_RING } from '@/lib/ui'
 
 type Props = {
   type: MediaType
@@ -35,8 +36,8 @@ export function DoramasToggle({ type, filters, disabled }: Props) {
       onClick={toggle}
       disabled={disabled}
       aria-pressed={active}
-      className={`rounded-full border px-3 py-1 text-sm transition disabled:cursor-not-allowed disabled:opacity-40 ${
-        active ? 'border-pink-300 bg-pink-300 text-black' : 'border-white/20 hover:border-white/60'
+      className={`rounded-full border px-4 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING} ${
+        active ? 'border-pink-300 bg-pink-300 font-semibold text-noite' : 'border-linha bg-superficie hover:border-suave'
       }`}
     >
       🌸 Doramas

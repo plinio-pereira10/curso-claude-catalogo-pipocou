@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { TitleCard } from './TitleCard'
 import { MEDIA, type MediaType } from '@/lib/media'
+import { FOCUS_RING } from '@/lib/ui'
 import type { TitlePage, TitleSummary } from '@/lib/tmdb/types'
 
 type Props = {
@@ -47,12 +48,12 @@ export function TitleGrid({ type, initial, query }: Props) {
   }
 
   if (items.length === 0) {
-    return <p className="text-zinc-400">{MEDIA[type].noneFound}</p>
+    return <p className="text-suave">{MEDIA[type].noneFound}</p>
   }
 
   return (
     <div className="space-y-6">
-      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <ul className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {items.map((item) => (
           <li key={item.id}>
             <TitleCard item={item} type={type} />
@@ -69,7 +70,7 @@ export function TitleGrid({ type, initial, query }: Props) {
             onClick={loadMore}
             disabled={loading}
             aria-label="Carregar mais"
-            className="rounded bg-white px-5 py-2 text-sm font-medium text-black disabled:opacity-50"
+            className={`rounded-full bg-texto px-6 py-2 text-sm font-semibold text-noite disabled:opacity-50 ${FOCUS_RING}`}
           >
             {loading ? 'Carregando…' : 'Carregar mais'}
           </button>

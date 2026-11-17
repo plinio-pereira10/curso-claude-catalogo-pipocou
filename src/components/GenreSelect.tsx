@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import type { Filters } from '@/lib/filters'
 import { listHref, type MediaType } from '@/lib/media'
+import { FOCUS_RING } from '@/lib/ui'
 import type { Genre } from '@/lib/tmdb/types'
 
 type Props = {
@@ -24,13 +25,13 @@ export function GenreSelect({ type, genres, filters, disabled }: Props) {
   const selected = genres.some((g) => g.id === filters.genreId) ? filters.genreId : ''
 
   return (
-    <label className="flex items-center gap-2 text-sm">
+    <label className="flex items-center gap-2 text-sm text-suave">
       Gênero:
       <select
         value={selected}
         onChange={(e) => change(e.target.value)}
         disabled={disabled}
-        className="rounded border border-white/20 bg-zinc-900 px-2 py-1 disabled:opacity-40"
+        className={`rounded-full border border-linha bg-superficie py-1.5 pr-8 pl-4 text-sm disabled:opacity-40 ${FOCUS_RING}`}
       >
         <option value="">Todos</option>
         {genres.map((g) => (

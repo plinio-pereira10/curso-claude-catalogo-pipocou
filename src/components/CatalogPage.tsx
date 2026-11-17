@@ -1,12 +1,9 @@
 import { Suspense } from 'react'
 import { loadCatalogPage } from '@/lib/catalog'
-import { visibleGenres } from '@/lib/doramas'
 import { filtersToQuery, parseFilters } from '@/lib/filters'
-import { MEDIA, type MediaType } from '@/lib/media'
+import type { MediaType } from '@/lib/media'
 import { getGenres, getTopProviders } from '@/lib/tmdb/titles'
-import { DoramasToggle } from './DoramasToggle'
-import { GenreSelect } from './GenreSelect'
-import { RatingSelect } from './RatingSelect'
+import { FilterBar } from './FilterBar'
 import { TitleGrid } from './TitleGrid'
 import { TopBar } from './TopBar'
 import { GUTTER } from '@/lib/ui'
@@ -43,7 +40,6 @@ async function Catalog({ type, searchParams }: Props) {
     providers.map((p) => p.id),
   )
 
-  const searching = Boolean(q)
   const current = { providerId, genreId, minRating, q, doramas }
   const query = filtersToQuery(current)
 
@@ -51,19 +47,7 @@ async function Catalog({ type, searchParams }: Props) {
     <>
       <TopBar type={type} providers={providers} filters={current} />
       <div className={`${GUTTER} space-y-6 py-6`}>
-      <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-4">
-          <GenreSelect
-            type={type}
-            genres={visibleGenres(allGenres, type, doramas)}
-            filters={current}
-            disabled={searching}
-          />
-          <RatingSelect type={type} filters={current} disabled={searching} />
-          <DoramasToggle type={type} filters={current} disabled={searching} />
-        </div>
-        {searching && <p className="text-sm text-zinc-400">{MEDIA[type].searchNote}</p>}
-      </div>
+      <FilterBar type={type} genres={allGenres} filters={current} />
 
       {/* key: quando os filtros mudam, a grade recomeça da primeira página */}
       <TitleGrid key={`${type}?${query}`} type={type} initial={firstPage} query={query} />
