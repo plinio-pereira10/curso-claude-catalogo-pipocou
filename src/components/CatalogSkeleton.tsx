@@ -5,7 +5,7 @@ export function CatalogSkeleton() {
   return (
     <div aria-busy="true">
       <p className="sr-only">Carregando…</p>
-      <div className="h-[60vh] min-h-[28rem] bg-superficie/60 motion-safe:animate-pulse lg:h-[70vh]" />
+      <div className="h-[75vh] min-h-[34rem] bg-superficie/60 motion-safe:animate-pulse sm:h-[65vh] sm:min-h-[28rem] lg:h-[70vh]" />
       <div className={`space-y-8 pt-6 pb-12 ${GUTTER}`}>
         {[0, 1].map((row) => (
           <div key={row} className="space-y-3">

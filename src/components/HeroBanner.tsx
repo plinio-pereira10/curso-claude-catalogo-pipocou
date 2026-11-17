@@ -37,7 +37,7 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
     <section
       aria-roledescription="carrossel"
       aria-label="Destaques"
-      className="relative h-[60vh] min-h-[28rem] overflow-hidden lg:h-[70vh]"
+      className="relative h-[75vh] min-h-[34rem] overflow-hidden sm:h-[65vh] sm:min-h-[28rem] lg:h-[70vh]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
