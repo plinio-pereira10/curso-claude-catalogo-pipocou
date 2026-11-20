@@ -1,5 +1,6 @@
 import 'server-only'
 import { unstable_rethrow } from 'next/navigation'
+import { cache } from 'react'
 import { supabaseEnv } from '@/lib/supabase/env'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
@@ -11,24 +12,45 @@ export type CurrentUser = {
   initial: string
 }
 
+/** Resultado de perguntar ao Supabase quem está logado. */
+export type UserLookup = {
+  user: CurrentUser | null
+  /** true = não foi possível perguntar (Supabase fora do ar); false = resposta confiável. */
+  failed: boolean
+}
+
 /**
- * Quem está logado agora, ou null.
- * Nunca lança erro: sem sessão, sem variáveis ou com o Supabase fora do ar, devolve null
- * (o catálogo continua funcionando como para quem não tem conta).
+ * Pergunta ao Supabase quem está logado. Nunca lança erro.
+ * `cache` (do React) guarda a resposta durante a montagem de uma página: o menu, os botões e as
+ * listas perguntam várias vezes, mas o Supabase só é consultado uma vez.
  * Lê cookies: use só dentro de <Suspense>.
  */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
-  if (!supabaseEnv()) return null
+export const lookupCurrentUser = cache(async (): Promise<UserLookup> => {
+  if (!supabaseEnv()) return { user: null, failed: false }
   try {
     const supabase = await createSupabaseServerClient()
     const { data, error } = await supabase.auth.getUser()
     const user = data?.user
-    if (error || !user?.email) return null
-    return { id: user.id, email: user.email, initial: user.email.charAt(0).toUpperCase() }
+    if (error) {
+      // "sem sessão" é a resposta normal para quem não entrou; o resto é falha de verdade
+      const noSession = error.name === 'AuthSessionMissingError'
+      if (!noSession) console.error('Supabase: não foi possível ler o usuário', error)
+      return { user: null, failed: !noSession }
+    }
+    if (!user?.email) return { user: null, failed: false }
+    return { user: { id: user.id, email: user.email, initial: user.email.charAt(0).toUpperCase() }, failed: false }
   } catch (error) {
     // erros internos do Next (ex.: fim da pré-renderização) voltam para o Next tratar
     unstable_rethrow(error)
     console.error('Supabase: não foi possível ler o usuário', error)
-    return null
+    return { user: null, failed: true }
   }
+})
+
+/**
+ * Quem está logado agora, ou null (sem sessão, sem variáveis ou com o Supabase fora do ar).
+ * O catálogo continua funcionando como para quem não tem conta.
+ */
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  return (await lookupCurrentUser()).user
 }

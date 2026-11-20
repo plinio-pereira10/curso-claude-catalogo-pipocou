@@ -1,11 +1,11 @@
 vi.mock('server-only', () => ({}))
 
-const { getCurrentUser, from, refresh } = vi.hoisted(() => ({
-  getCurrentUser: vi.fn(),
+const { lookupCurrentUser, from, refresh } = vi.hoisted(() => ({
+  lookupCurrentUser: vi.fn(),
   from: vi.fn(),
   refresh: vi.fn(),
 }))
-vi.mock('@/lib/auth', () => ({ getCurrentUser }))
+vi.mock('@/lib/auth', () => ({ lookupCurrentUser }))
 vi.mock('@/lib/supabase/server', () => ({ createSupabaseServerClient: async () => ({ from }) }))
 vi.mock('next/cache', () => ({ refresh }))
 
@@ -32,7 +32,7 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks())
 
 test('setMark sem usuário pede login', async () => {
-  getCurrentUser.mockResolvedValue(null)
+  lookupCurrentUser.mockResolvedValue({ user: null, failed: false })
   await expect(setMark({ mediaType: 'tv', tmdbId: 5, status: 'want', snapshot })).resolves.toEqual({
     ok: false,
     reason: 'login',
@@ -41,7 +41,7 @@ test('setMark sem usuário pede login', async () => {
 })
 
 test('setMark grava com upsert e retrato', async () => {
-  getCurrentUser.mockResolvedValue(user)
+  lookupCurrentUser.mockResolvedValue({ user, failed: false })
   const t = table()
   from.mockReturnValue(t)
   await expect(setMark({ mediaType: 'tv', tmdbId: 5, status: 'want', snapshot })).resolves.toEqual({ ok: true })
@@ -64,7 +64,7 @@ test('setMark grava com upsert e retrato', async () => {
 })
 
 test('setMark com status null apaga a linha', async () => {
-  getCurrentUser.mockResolvedValue(user)
+  lookupCurrentUser.mockResolvedValue({ user, failed: false })
   const t = table()
   from.mockReturnValue(t)
   await expect(setMark({ mediaType: 'movie', tmdbId: 7, status: null, snapshot })).resolves.toEqual({ ok: true })
@@ -75,7 +75,7 @@ test('setMark com status null apaga a linha', async () => {
 })
 
 test('setMark recusa dados inválidos', async () => {
-  getCurrentUser.mockResolvedValue(user)
+  lookupCurrentUser.mockResolvedValue({ user, failed: false })
   const bad = [
     { mediaType: 'x', tmdbId: 5, status: 'want', snapshot },
     { mediaType: 'tv', tmdbId: 0, status: 'want', snapshot },
@@ -90,10 +90,19 @@ test('setMark recusa dados inválidos', async () => {
 })
 
 test('setMark com falha do Supabase devolve erro', async () => {
-  getCurrentUser.mockResolvedValue(user)
+  lookupCurrentUser.mockResolvedValue({ user, failed: false })
   from.mockReturnValue(table({ error: { message: 'falhou' } }))
   await expect(setMark({ mediaType: 'tv', tmdbId: 5, status: 'want', snapshot })).resolves.toEqual({
     ok: false,
     reason: 'erro',
   })
+})
+
+test('setMark com o Supabase fora do ar mostra erro (não manda entrar)', async () => {
+  lookupCurrentUser.mockResolvedValue({ user: null, failed: true })
+  await expect(setMark({ mediaType: 'tv', tmdbId: 5, status: 'want', snapshot })).resolves.toEqual({
+    ok: false,
+    reason: 'erro',
+  })
+  expect(from).not.toHaveBeenCalled()
 })

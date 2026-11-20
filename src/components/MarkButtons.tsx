@@ -56,10 +56,14 @@ export function MarkButtons({ type, tmdbId, snapshot, initialStatus, loggedIn, r
     const target = nextStatus(status, clicked)
     setFailed(false)
     startTransition(async () => {
-      const result = await setMark({ mediaType: type, tmdbId, status: target, snapshot })
-      if (result.ok) setStatus(target)
-      else if (result.reason === 'login') router.push(loginHref) // sessão vencida
-      else setFailed(true)
+      try {
+        const result = await setMark({ mediaType: type, tmdbId, status: target, snapshot })
+        if (result.ok) setStatus(target)
+        else if (result.reason === 'login') router.push(loginHref) // sessão vencida
+        else setFailed(true)
+      } catch {
+        setFailed(true) // sem conexão com o servidor do site (ex.: internet caiu)
+      }
     })
   }
 

@@ -66,3 +66,12 @@ test('MarkButtons com sessão vencida leva para entrar', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Quero assistir' }))
   expect(push).toHaveBeenCalledWith('/entrar?voltar=%2Fserie%2F93405')
 })
+
+test('MarkButtons sem conexão com o servidor mostra a mensagem, não a tela de erro', async () => {
+  setMark.mockRejectedValue(new TypeError('Failed to fetch'))
+  render(<MarkButtons {...base} initialStatus={null} loggedIn />)
+  await act(async () => userEvent.click(screen.getByRole('button', { name: 'Quero assistir' })))
+  expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível conectar. Tente de novo.')
+  expect(screen.getByRole('button', { name: 'Quero assistir' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Quero assistir' })).toHaveAttribute('aria-pressed', 'false')
+})

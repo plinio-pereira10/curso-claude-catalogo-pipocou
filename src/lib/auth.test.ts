@@ -6,9 +6,22 @@ const { getUser, createSupabaseServerClient } = vi.hoisted(() => {
 })
 vi.mock('@/lib/supabase/server', () => ({ createSupabaseServerClient }))
 
-import { getCurrentUser } from './auth'
+// O `cache` do React só guarda respostas no servidor de verdade; aqui, uma versão que guarda
+// e pode ser zerada entre os testes (como se cada teste fosse uma página nova).
+const { resetters } = vi.hoisted(() => ({ resetters: [] as (() => void)[] }))
+vi.mock('react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('react')>()),
+  cache: <T,>(fn: () => T) => {
+    let stored: { value: T } | null = null
+    resetters.push(() => (stored = null))
+    return () => (stored ??= { value: fn() }).value
+  },
+}))
+
+import { getCurrentUser, lookupCurrentUser } from './auth'
 
 beforeEach(() => {
+  for (const reset of resetters) reset()
   getUser.mockReset()
   createSupabaseServerClient.mockClear()
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://exemplo.supabase.co')
@@ -51,4 +64,25 @@ test('cancelamento da pré-renderização do Next volta para o Next (não vira "
   createSupabaseServerClient.mockRejectedValueOnce(prerenderAbort)
   await expect(getCurrentUser()).rejects.toBe(prerenderAbort)
   expect(console.error).not.toHaveBeenCalled()
+})
+
+test('consulta o Supabase uma vez só durante a montagem da página', async () => {
+  getUser.mockResolvedValue({ data: { user: { id: 'u1', email: 'plinio@x.com' } }, error: null })
+  await Promise.all([getCurrentUser(), getCurrentUser(), lookupCurrentUser()])
+  expect(getUser).toHaveBeenCalledTimes(1)
+})
+
+test('lookupCurrentUser diferencia "ninguém logado" de "Supabase fora do ar"', async () => {
+  getUser.mockResolvedValue({ data: { user: null }, error: { name: 'AuthSessionMissingError', message: 'Auth session missing!' } })
+  await expect(lookupCurrentUser()).resolves.toEqual({ user: null, failed: false })
+})
+
+test('lookupCurrentUser marca falha quando o Supabase não responde', async () => {
+  getUser.mockResolvedValue({ data: { user: null }, error: { name: 'AuthRetryableFetchError', message: 'fetch failed' } })
+  await expect(lookupCurrentUser()).resolves.toEqual({ user: null, failed: true })
+})
+
+test('lookupCurrentUser marca falha quando a chamada lança erro', async () => {
+  getUser.mockRejectedValue(new TypeError('fetch failed'))
+  await expect(lookupCurrentUser()).resolves.toEqual({ user: null, failed: true })
 })

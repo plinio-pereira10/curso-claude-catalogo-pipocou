@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 import { unstable_rethrow } from 'next/navigation'
-import { getCurrentUser } from '@/lib/auth'
+import { lookupCurrentUser } from '@/lib/auth'
 import type { MarkStatus, TitleSnapshot } from '@/lib/marks'
 import type { MediaType } from '@/lib/media'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
@@ -38,7 +38,8 @@ export async function setMark(input: SetMarkInput): Promise<SetMarkResult> {
   if (!isValid(input)) return { ok: false, reason: 'erro' }
 
   // A própria função confere quem está logado (o proxy só renova a sessão; não protege nada).
-  const user = await getCurrentUser()
+  const { user, failed } = await lookupCurrentUser()
+  if (failed) return { ok: false, reason: 'erro' } // Supabase fora do ar: não é sessão vencida
   if (!user) return { ok: false, reason: 'login' }
 
   const { mediaType, tmdbId, status, snapshot } = input
