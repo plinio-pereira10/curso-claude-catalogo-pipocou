@@ -38,3 +38,23 @@ test('TitleCard mostra nota e ano', () => {
   expect(screen.getByText('8.2')).toBeInTheDocument()
   expect(screen.getByText('2024')).toBeInTheDocument()
 })
+
+test('TitleCard mostra a etiqueta da lista marcada', () => {
+  const { rerender } = render(<TitleCard type="movie" item={base} mark="want" />)
+  expect(screen.getByText('Quero assistir')).toBeInTheDocument()
+  rerender(<TitleCard type="movie" item={base} mark="watched" />)
+  expect(screen.getByText('✓ Assisti')).toBeInTheDocument()
+})
+
+test('TitleCard sem mark não mostra etiqueta de lista', () => {
+  render(<TitleCard type="movie" item={base} />)
+  expect(screen.queryByText('Quero assistir')).toBeNull()
+  expect(screen.queryByText('✓ Assisti')).toBeNull()
+})
+
+test('TitleCard com showKind mostra Filme ou Série', () => {
+  const { rerender } = render(<TitleCard type="movie" item={base} showKind />)
+  expect(screen.getByText('Filme')).toBeInTheDocument()
+  rerender(<TitleCard type="tv" item={base} showKind />)
+  expect(screen.getByText('Série')).toBeInTheDocument()
+})

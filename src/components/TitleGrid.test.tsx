@@ -75,3 +75,13 @@ test('lista vazia de séries mostra "Nenhuma série encontrada."', () => {
   render(<TitleGrid type="tv" initial={{ page: 1, totalPages: 0, results: [] }} query="" />)
   expect(screen.getByText('Nenhuma série encontrada.')).toBeInTheDocument()
 })
+
+test('TitleGrid aplica as marcações aos itens do Carregar mais', async () => {
+  mockFetchJson({ page: 2, totalPages: 2, results: [item(2, 'B')] })
+  render(
+    <TitleGrid type="movie" initial={{ page: 1, totalPages: 2, results: [item(1, 'A')] }} query="" marks={{ 'movie:1': 'want', 'movie:2': 'watched' }} />,
+  )
+  expect(screen.getByText('Quero assistir')).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('button', { name: 'Carregar mais' }))
+  expect(await screen.findByText('✓ Assisti')).toBeInTheDocument()
+})

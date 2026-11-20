@@ -4,6 +4,7 @@ import { filtersToQuery, parseFilters, type Filters } from '@/lib/filters'
 import { hasActiveFilters, loadHome } from '@/lib/home'
 import { MEDIA, type MediaType } from '@/lib/media'
 import { getGenres, getTopProviders } from '@/lib/tmdb/titles'
+import { getUserMarks } from '@/lib/user-titles'
 import { GUTTER } from '@/lib/ui'
 import { CatalogSkeleton } from './CatalogSkeleton'
 import { FilterBar } from './FilterBar'
@@ -47,7 +48,13 @@ async function Catalog({ type, searchParams }: Props) {
 
 /** Tela inicial: banner com destaques e uma fileira por streaming. */
 async function Home({ type, filters }: { type: MediaType; filters: CurrentFilters }) {
-  const [providers, genres, home] = await Promise.all([getTopProviders(type), getGenres(type), loadHome(type)])
+  // marcações da pessoa (etiquetas): leem o cookie de sessão, por isso ficam fora de qualquer cache
+  const [providers, genres, home, marks] = await Promise.all([
+    getTopProviders(type),
+    getGenres(type),
+    loadHome(type),
+    getUserMarks(),
+  ])
   const hasHero = home.featured.length > 0
 
   return (
@@ -61,7 +68,7 @@ async function Home({ type, filters }: { type: MediaType; filters: CurrentFilter
         {home.rows.length === 0 ? (
           <p className={`${GUTTER} text-suave`}>{MEDIA[type].noneFound}</p>
         ) : (
-          home.rows.map((row) => <TitleRow key={row.provider.id} type={type} row={row} />)
+          home.rows.map((row) => <TitleRow key={row.provider.id} type={type} row={row} marks={marks} />)
         )}
       </div>
     </>
@@ -70,7 +77,7 @@ async function Home({ type, filters }: { type: MediaType; filters: CurrentFilter
 
 /** Grade com filtros (streaming, gênero, nota, Doramas ou busca) e "Carregar mais". */
 async function Grid({ type, filters }: { type: MediaType; filters: CurrentFilters }) {
-  const [providers, genres] = await Promise.all([getTopProviders(type), getGenres(type)])
+  const [providers, genres, marks] = await Promise.all([getTopProviders(type), getGenres(type), getUserMarks()])
   const firstPage = await loadCatalogPage(
     type,
     { ...filters, page: 1 },
@@ -84,7 +91,7 @@ async function Grid({ type, filters }: { type: MediaType; filters: CurrentFilter
       <div className={`${GUTTER} space-y-6 pt-6 pb-12`}>
         <FilterBar type={type} genres={genres} filters={filters} />
         {/* key: quando os filtros mudam, a grade recomeça da primeira página */}
-        <TitleGrid key={`${type}?${query}`} type={type} initial={firstPage} query={query} />
+        <TitleGrid key={`${type}?${query}`} type={type} initial={firstPage} query={query} marks={marks} />
       </div>
     </>
   )

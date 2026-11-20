@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 const { setMark, push } = vi.hoisted(() => ({ setMark: vi.fn(), push: vi.fn() }))
@@ -52,8 +52,9 @@ test('MarkButtons desativa enquanto grava e mostra erro se falhar', async () => 
   expect(screen.getByRole('button', { name: 'Quero assistir' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Já assisti' })).toBeDisabled()
 
-  finish({ ok: false, reason: 'erro' })
-  expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível conectar. Tente de novo.')
+  // espera o React terminar de processar a resposta (não depende de tempo de espera)
+  await act(async () => finish({ ok: false, reason: 'erro' }))
+  expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível conectar. Tente de novo.')
   // continua como estava antes do clique
   expect(screen.getByRole('button', { name: 'Quero assistir' })).toHaveAttribute('aria-pressed', 'true')
   expect(screen.getByRole('button', { name: 'Quero assistir' })).toBeEnabled()

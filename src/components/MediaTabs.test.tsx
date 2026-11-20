@@ -46,3 +46,13 @@ test('MediaTabs leva a nota ao trocar de aba', () => {
   render(<MediaTabs />)
   expect(screen.getByRole('link', { name: 'Séries' })).toHaveAttribute('href', '/series?nota=8')
 })
+
+test('MediaTabs não destaca Filmes nem Séries em Minhas listas, Entrar e Criar conta', () => {
+  for (const path of ['/minhas-listas', '/entrar', '/criar-conta']) {
+    mockPath(path, '')
+    const { unmount } = render(<MediaTabs />)
+    expect(screen.getByRole('link', { name: 'Filmes' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'Séries' })).not.toHaveAttribute('aria-current')
+    unmount()
+  }
+})

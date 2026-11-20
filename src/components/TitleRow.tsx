@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRef } from 'react'
 import type { ProviderRow } from '@/lib/home'
 import { logoUrl } from '@/lib/images'
+import { markKey, type MarkMap } from '@/lib/marks'
 import { listHref, type MediaType } from '@/lib/media'
 import { FOCUS_RING, GUTTER } from '@/lib/ui'
 import { TitleCard } from './TitleCard'
@@ -13,7 +14,7 @@ import { TitleCard } from './TitleCard'
 const SCROLL_FRACTION = 0.9
 
 /** Uma fileira da tela inicial: logo + nome do streaming, "Ver todos" e cartões que rolam para o lado. */
-export function TitleRow({ type, row }: { type: MediaType; row: ProviderRow }) {
+export function TitleRow({ type, row, marks = {} }: { type: MediaType; row: ProviderRow; marks?: MarkMap }) {
   const listRef = useRef<HTMLUListElement>(null)
   const { provider, titles } = row
   const headingId = `fileira-${provider.id}`
@@ -57,7 +58,7 @@ export function TitleRow({ type, row }: { type: MediaType; row: ProviderRow }) {
         >
           {titles.map((item) => (
             <li key={item.id} className="w-[70vw] shrink-0 snap-start sm:w-[42vw] lg:w-[24vw]">
-              <TitleCard item={item} type={type} />
+              <TitleCard item={item} type={type} mark={marks[markKey(type, item.id)]} />
             </li>
           ))}
         </ul>
