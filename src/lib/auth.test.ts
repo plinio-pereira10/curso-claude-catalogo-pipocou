@@ -43,3 +43,12 @@ test('variáveis ausentes devolve null sem chamar o Supabase', async () => {
   await expect(getCurrentUser()).resolves.toBeNull()
   expect(createSupabaseServerClient).not.toHaveBeenCalled()
 })
+
+test('cancelamento da pré-renderização do Next volta para o Next (não vira "sem login")', async () => {
+  const prerenderAbort = Object.assign(new Error('During prerendering, `cookies()` rejects...'), {
+    digest: 'HANGING_PROMISE_REJECTION',
+  })
+  createSupabaseServerClient.mockRejectedValueOnce(prerenderAbort)
+  await expect(getCurrentUser()).rejects.toBe(prerenderAbort)
+  expect(console.error).not.toHaveBeenCalled()
+})

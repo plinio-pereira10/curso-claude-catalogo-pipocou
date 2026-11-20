@@ -6,6 +6,9 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }))
 
+// a parte da conta lê o cookie de sessão (só no servidor); aqui o teste é do menu
+vi.mock('./AccountNav', () => ({ AccountNav: () => null }))
+
 import { TopBar } from './TopBar'
 
 const providers = [{ id: 8, name: 'Netflix', logoPath: '/n.png' }]

@@ -1,4 +1,5 @@
 import 'server-only'
+import { unstable_rethrow } from 'next/navigation'
 import { supabaseEnv } from '@/lib/supabase/env'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
@@ -25,6 +26,8 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     if (error || !user?.email) return null
     return { id: user.id, email: user.email, initial: user.email.charAt(0).toUpperCase() }
   } catch (error) {
+    // erros internos do Next (ex.: fim da pré-renderização) voltam para o Next tratar
+    unstable_rethrow(error)
     console.error('Supabase: não foi possível ler o usuário', error)
     return null
   }

@@ -4,6 +4,7 @@ import type { Filters } from '@/lib/filters'
 import type { MediaType } from '@/lib/media'
 import type { Provider } from '@/lib/tmdb/types'
 import { FOCUS_RING, GUTTER } from '@/lib/ui'
+import { AccountNav } from './AccountNav'
 import { MediaTabs, MediaTabsFallback } from './MediaTabs'
 import { ProviderFilter } from './ProviderFilter'
 import { SearchBox } from './SearchBox'
@@ -17,7 +18,7 @@ type Props = {
   filters?: Omit<Filters, 'page'>
 }
 
-/** Menu do topo: Catálogo · Filmes | Séries · logos dos streamings · busca. */
+/** Menu do topo: Catálogo · Filmes | Séries · logos dos streamings · busca · conta (Minhas listas / Entrar). */
 export function TopBar({ type, overlay = false, providers, filters }: Props) {
   const position = overlay
     ? 'absolute inset-x-0 top-0 z-20 bg-linear-to-b from-noite/90 via-noite/50 to-transparent pb-10'
@@ -47,6 +48,11 @@ export function TopBar({ type, overlay = false, providers, filters }: Props) {
         <div className="w-full sm:ml-auto sm:w-auto">
           <SearchBox key={filters?.q ?? ''} type={type} initialQuery={filters?.q} />
         </div>
+
+        {/* Lê o cookie de sessão; enquanto isso, não mostra nada (evita piscar "Entrar" para quem está logado). */}
+        <Suspense fallback={null}>
+          <AccountNav />
+        </Suspense>
       </div>
     </header>
   )

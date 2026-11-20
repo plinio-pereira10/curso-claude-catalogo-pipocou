@@ -5,6 +5,8 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: vi.fn() }),
 }))
+// a parte da conta lê o cookie de sessão (só no servidor); aqui o teste é do menu
+vi.mock('@/components/AccountNav', () => ({ AccountNav: () => null }))
 
 import Loading from './loading'
 
