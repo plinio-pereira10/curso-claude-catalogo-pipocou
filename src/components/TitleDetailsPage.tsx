@@ -6,10 +6,14 @@ import type { Metadata } from 'next'
 import { summarizeAvailability } from '@/lib/availability'
 import { formatRating, formatRuntime, formatSeasons } from '@/lib/format'
 import { backdropUrl, posterUrl } from '@/lib/images'
-import { MEDIA, type MediaType } from '@/lib/media'
+import { getCurrentUser } from '@/lib/auth'
+import { detailPath, MEDIA, type MediaType } from '@/lib/media'
 import { TmdbError } from '@/lib/tmdb/client'
 import { getTitleDetails, getWatchProviders } from '@/lib/tmdb/titles'
+import type { TitleDetails } from '@/lib/tmdb/types'
+import { getTitleMark } from '@/lib/user-titles'
 import { BackButton } from './BackButton'
+import { MarkButtons } from './MarkButtons'
 import { PosterPlaceholder } from './TitleCard'
 import { TopBar } from './TopBar'
 import { GUTTER } from '@/lib/ui'
@@ -125,6 +129,11 @@ async function TitleDetailsView({ type, params }: { type: MediaType; params: Par
               {details.genres.length > 0 && <span>{details.genres.map((g) => g.name).join(', ')}</span>}
             </p>
 
+            {/* Depende de quem está logado: fica numa parte separada, que não atrasa o resto da página. */}
+            <Suspense fallback={<div className="h-9" />}>
+              <TitleMarks type={type} details={details} />
+            </Suspense>
+
             <p className="max-w-2xl leading-relaxed">{details.overview || 'Sinopse não disponível.'}</p>
 
             <WhereToWatch availability={availability} brazilLink={brazilLink} />
@@ -132,6 +141,27 @@ async function TitleDetailsView({ type, params }: { type: MediaType; params: Par
         </article>
       </div>
     </>
+  )
+}
+
+/** Botões "Quero assistir" / "Já assisti", com o estado atual da pessoa (lê o cookie de sessão). */
+async function TitleMarks({ type, details }: { type: MediaType; details: TitleDetails }) {
+  const [user, status] = await Promise.all([getCurrentUser(), getTitleMark(type, details.id)])
+  return (
+    <MarkButtons
+      type={type}
+      tmdbId={details.id}
+      snapshot={{
+        title: details.title,
+        posterPath: details.posterPath,
+        backdropPath: details.backdropPath,
+        releaseYear: details.releaseYear,
+        voteAverage: details.voteAverage,
+      }}
+      initialStatus={status}
+      loggedIn={Boolean(user)}
+      returnPath={detailPath(type, details.id)}
+    />
   )
 }
 
