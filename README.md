@@ -18,6 +18,21 @@ Site que mostra os filmes disponíveis **agora** nos streamings do Brasil (só a
    ```
    Abra http://localhost:3000
 
+## Contas e listas (Supabase)
+
+O login e as listas "Quero assistir" / "Já assisti" usam o [Supabase](https://supabase.com) (plano gratuito).
+
+1. Crie um projeto (região **South America (São Paulo)**).
+2. **Authentication → Sign In / Providers → Email**: desligue **Confirm email**.
+3. **SQL Editor → New query**: cole o arquivo `supabase/schema.sql` e clique em **Run** (cria a tabela e as regras de segurança).
+4. **Project Settings → API Keys**: copie o **Project URL** e a **Publishable key** para o `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://....supabase.co
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+   ```
+   Nunca use a chave **secret / service_role** no site.
+5. Para conferir a segurança (ninguém vê as listas de outra pessoa): `node --env-file=.env.local scripts/check-rls.mjs` → deve terminar com **RLS OK**. O script cria duas contas de teste, que podem ser apagadas em Authentication → Users.
+
 ## Comandos
 
 - `npm run dev` — roda o site em modo de desenvolvimento
