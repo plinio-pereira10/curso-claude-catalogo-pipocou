@@ -18,10 +18,13 @@ export async function proxy(request: NextRequest) {
       getAll() {
         return request.cookies.getAll()
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet, headers) {
         for (const { name, value } of cookiesToSet) request.cookies.set(name, value)
         response = NextResponse.next({ request })
         for (const { name, value, options } of cookiesToSet) response.cookies.set(name, value, options)
+        // A resposta que grava o cookie de sessão não pode ser guardada em cache (CDN/proxy),
+        // senão o cookie de uma pessoa poderia ser entregue a outra.
+        for (const [key, value] of Object.entries(headers ?? {})) response.headers.set(key, value)
       },
     },
   })

@@ -32,37 +32,48 @@ const a = await newUser('a')
 const b = await newUser('b')
 console.log(`contas de teste: ${a.email}, ${b.email}`)
 
-const row = { media_type: 'tv', tmdb_id: 93405, status: 'want', title: 'Round 6', vote_average: 7.9 }
+try {
+  const row = { media_type: 'tv', tmdb_id: 93405, status: 'want', title: 'Round 6', vote_average: 7.9 }
 
-const insertA = await a.client.from('user_titles').insert(row).select()
-check(!insertA.error && insertA.data?.length === 1, 'A consegue marcar um título')
+  const insertA = await a.client.from('user_titles').insert(row).select()
+  check(!insertA.error && insertA.data?.length === 1, 'A consegue marcar um título')
 
-const ownA = await a.client.from('user_titles').select('*')
-check(ownA.data?.length === 1 && ownA.data[0].user_id === a.id, 'A vê a própria marcação')
+  const ownA = await a.client.from('user_titles').select('*')
+  check(ownA.data?.length === 1 && ownA.data[0].user_id === a.id, 'A vê a própria marcação')
 
-const seenByB = await b.client.from('user_titles').select('*')
-check(!seenByB.error && seenByB.data.length === 0, 'B não vê a marcação de A')
+  const seenByB = await b.client.from('user_titles').select('*')
+  check(!seenByB.error && seenByB.data.length === 0, 'B não vê a marcação de A')
 
-const updateByB = await b.client.from('user_titles').update({ status: 'watched' }).eq('user_id', a.id).select()
-check(!updateByB.error && updateByB.data.length === 0, 'B não consegue alterar a marcação de A')
+  const updateByB = await b.client.from('user_titles').update({ status: 'watched' }).eq('user_id', a.id).select()
+  check(!updateByB.error && updateByB.data.length === 0, 'B não consegue alterar a marcação de A')
 
-const deleteByB = await b.client.from('user_titles').delete().eq('user_id', a.id).select()
-check(!deleteByB.error && deleteByB.data.length === 0, 'B não consegue apagar a marcação de A')
+  const deleteByB = await b.client.from('user_titles').delete().eq('user_id', a.id).select()
+  check(!deleteByB.error && deleteByB.data.length === 0, 'B não consegue apagar a marcação de A')
 
-const forgeByB = await b.client.from('user_titles').insert({ ...row, user_id: a.id }).select()
-check(Boolean(forgeByB.error), 'B não consegue criar marcação em nome de A')
+  // 42501 = bloqueado pela regra de segurança (RLS); 23505 = chave repetida
+  const forgeByB = await b.client.from('user_titles').insert({ ...row, user_id: a.id }).select()
+  check(forgeByB.error?.code === '42501', 'B não consegue criar marcação em nome de A')
 
-const dupA = await a.client.from('user_titles').insert({ ...row, status: 'watched' }).select()
-check(Boolean(dupA.error), 'o mesmo título não entra duas vezes para A (uma lista só)')
+  const dupA = await a.client.from('user_titles').insert({ ...row, status: 'watched' }).select()
+  check(dupA.error?.code === '23505', 'o mesmo título não entra duas vezes para A (uma lista só)')
 
-const stillA = await a.client.from('user_titles').select('status')
-check(stillA.data?.length === 1 && stillA.data[0].status === 'want', 'a marcação de A continua intacta')
+  const moveToB = await a.client.from('user_titles').update({ user_id: b.id }).eq('tmdb_id', row.tmdb_id).select()
+  check(moveToB.error?.code === '42501', 'A não consegue passar a própria marcação para B')
 
-const anon = createClient(url, key, { auth: { persistSession: false } })
-const seenByAnon = await anon.from('user_titles').select('*')
-check(!seenByAnon.error && seenByAnon.data.length === 0, 'quem não está logado não vê nada')
+  const stillA = await a.client.from('user_titles').select('status')
+  check(stillA.data?.length === 1 && stillA.data[0].status === 'want', 'a marcação de A continua intacta')
 
-await a.client.from('user_titles').delete().eq('user_id', a.id)
+  const anon = createClient(url, key, { auth: { persistSession: false } })
+  const seenByAnon = await anon.from('user_titles').select('*')
+  check(!seenByAnon.error && seenByAnon.data.length === 0, 'quem não está logado não vê nada')
+
+  const insertByAnon = await anon.from('user_titles').insert(row).select()
+  check(Boolean(insertByAnon.error), 'quem não está logado não consegue gravar')
+
+} finally {
+  // apaga a linha de teste mesmo se alguma verificação falhar no meio
+  await a.client.from('user_titles').delete().eq('user_id', a.id)
+}
 
 if (failures.length) {
   console.error(`\nRLS FALHOU (${failures.length})`)
