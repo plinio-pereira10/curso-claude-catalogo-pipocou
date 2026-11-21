@@ -12,13 +12,20 @@ type Props = {
   disabled: boolean
 }
 
-/** Botão liga/desliga "🌸 Doramas". Soma com o streaming e o gênero escolhidos. */
+const OPTIONS: { doramas: boolean; label: string }[] = [
+  { doramas: false, label: 'Todos' },
+  { doramas: true, label: 'Doramas' },
+]
+
+/**
+ * "Todos | Doramas", como as abas Filmes | Séries: a opção escolhida fica na pílula branca.
+ * "Doramas" liga o filtro e soma com o streaming, o gênero, a nota e a ordem escolhidos.
+ */
 export function DoramasToggle({ type, filters, disabled }: Props) {
   const router = useRouter()
-  const active = filters.doramas
 
-  function toggle() {
-    const doramas = !active
+  function choose(doramas: boolean) {
+    if (doramas === filters.doramas) return // já está nessa opção
     router.push(
       listHref(type, {
         ...filters,
@@ -31,16 +38,24 @@ export function DoramasToggle({ type, filters, disabled }: Props) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      disabled={disabled}
-      aria-pressed={active}
-      className={`rounded-full border px-4 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING} ${
-        active ? 'border-pink-300 bg-pink-300 font-semibold text-noite' : 'border-linha bg-superficie hover:border-suave'
-      }`}
-    >
-      🌸 Doramas
-    </button>
+    <div role="group" aria-label="Doramas" className="inline-flex gap-0.5 rounded-full border border-linha p-[3px]">
+      {OPTIONS.map((option) => {
+        const active = option.doramas === filters.doramas
+        return (
+          <button
+            key={option.label}
+            type="button"
+            onClick={() => choose(option.doramas)}
+            disabled={disabled}
+            aria-pressed={active}
+            className={`rounded-full px-3.5 py-1 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING} ${
+              active ? 'bg-texto text-noite' : 'text-suave hover:text-texto'
+            }`}
+          >
+            {option.label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
