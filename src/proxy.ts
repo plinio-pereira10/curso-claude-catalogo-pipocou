@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { supabaseEnv } from '@/lib/supabase/env'
+import { SESSION_COOKIE_OPTIONS, supabaseEnv, supabaseFetch } from '@/lib/supabase/env'
 
 /**
  * Roda antes de cada página (no Next.js 16, o antigo "middleware" se chama proxy).
@@ -14,6 +14,8 @@ export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(env.url, env.key, {
+    cookieOptions: SESSION_COOKIE_OPTIONS,
+    global: { fetch: supabaseFetch },
     cookies: {
       getAll() {
         return request.cookies.getAll()
@@ -40,6 +42,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Todas as páginas, menos arquivos do Next e imagens.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)'],
+  // Todas as páginas, menos a rota interna do "Carregar mais" (api/), arquivos do Next e imagens.
+  matcher: ['/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)'],
 }

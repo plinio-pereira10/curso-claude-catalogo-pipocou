@@ -1,7 +1,7 @@
 import 'server-only'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { supabaseEnv } from './env'
+import { SESSION_COOKIE_OPTIONS, supabaseEnv, supabaseFetch } from './env'
 
 /**
  * Cliente do Supabase para o servidor, ligado aos cookies da pessoa (a sessão fica num cookie).
@@ -13,6 +13,8 @@ export async function createSupabaseServerClient() {
   const cookieStore = await cookies()
 
   return createServerClient(env.url, env.key, {
+    cookieOptions: SESSION_COOKIE_OPTIONS,
+    global: { fetch: supabaseFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll()

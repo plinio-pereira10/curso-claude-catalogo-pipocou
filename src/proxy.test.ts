@@ -3,7 +3,8 @@ import { NextRequest } from 'next/server'
 const { createServerClient } = vi.hoisted(() => ({ createServerClient: vi.fn() }))
 vi.mock('@supabase/ssr', () => ({ createServerClient }))
 
-import { proxy } from './proxy'
+import { config, proxy } from './proxy'
+import { supabaseFetch } from '@/lib/supabase/env'
 
 beforeEach(() => {
   createServerClient.mockReset()
@@ -55,4 +56,20 @@ test('Supabase fora do ar não derruba a página', async () => {
   }))
   const response = await proxy(new NextRequest('http://localhost/'))
   expect(response.status).toBe(200)
+})
+
+test('cliente do proxy usa cookie protegido e o fetch com tempo-limite', async () => {
+  supabaseThatRefreshes()
+  await proxy(new NextRequest('http://localhost/'))
+  const options = createServerClient.mock.calls[0][2]
+  expect(options.cookieOptions).toMatchObject({ httpOnly: true, sameSite: 'lax', path: '/' })
+  expect(options.global.fetch).toBe(supabaseFetch)
+})
+
+test('matcher do proxy não inclui /api', () => {
+  expect(config.matcher[0]).toContain('api/')
+  const pattern = new RegExp(`^${config.matcher[0]}$`)
+  expect(pattern.test('/api/titles')).toBe(false)
+  expect(pattern.test('/series')).toBe(true)
+  expect(pattern.test('/serie/93405')).toBe(true)
 })

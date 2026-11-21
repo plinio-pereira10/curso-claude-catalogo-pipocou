@@ -89,6 +89,23 @@ test('setMark recusa dados inválidos', async () => {
   expect(from).not.toHaveBeenCalled()
 })
 
+test('setMark recusa retrato inválido sem chamar o Supabase', async () => {
+  lookupCurrentUser.mockResolvedValue({ user, failed: false })
+  const bad = [
+    { ...snapshot, title: 'a'.repeat(301) },
+    { ...snapshot, posterPath: 'https://site-mal.com/x.jpg' },
+    { ...snapshot, releaseYear: 3000 },
+    { ...snapshot, voteAverage: 99 },
+  ]
+  for (const s of bad) {
+    await expect(setMark({ mediaType: 'tv', tmdbId: 5, status: 'want', snapshot: s })).resolves.toEqual({
+      ok: false,
+      reason: 'erro',
+    })
+  }
+  expect(from).not.toHaveBeenCalled()
+})
+
 test('setMark com falha do Supabase devolve erro', async () => {
   lookupCurrentUser.mockResolvedValue({ user, failed: false })
   from.mockReturnValue(table({ error: { message: 'falhou' } }))

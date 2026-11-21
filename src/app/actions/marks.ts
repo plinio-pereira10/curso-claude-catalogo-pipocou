@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 import { unstable_rethrow } from 'next/navigation'
 import { lookupCurrentUser } from '@/lib/auth'
-import type { MarkStatus, TitleSnapshot } from '@/lib/marks'
+import { isValidSnapshot, type MarkStatus, type TitleSnapshot } from '@/lib/marks'
 import type { MediaType } from '@/lib/media'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
@@ -25,8 +25,7 @@ function isValid(input: SetMarkInput): boolean {
     Number.isInteger(tmdbId) &&
     tmdbId > 0 &&
     (status === null || status === 'want' || status === 'watched') &&
-    typeof snapshot?.title === 'string' &&
-    snapshot.title.length > 0
+    isValidSnapshot(snapshot)
   )
 }
 
