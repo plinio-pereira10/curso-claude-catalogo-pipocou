@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { summarizeAvailability } from '@/lib/availability'
-import { formatRating, formatRuntime, formatSeasons } from '@/lib/format'
+import { formatRating, formatRuntime, formatSeasons, formatVotes } from '@/lib/format'
 import { backdropUrl, posterUrl } from '@/lib/images'
 import { getCurrentUser } from '@/lib/auth'
 import { detailPath, MEDIA, type MediaType } from '@/lib/media'
@@ -123,6 +123,9 @@ async function TitleDetailsView({ type, params }: { type: MediaType; params: Par
                   </span>
                 )}
                 {formatRating(details.voteAverage)}
+                {details.voteAverage > 0 && formatVotes(details.voteCount) && (
+                  <span className="text-suave"> ({formatVotes(details.voteCount)})</span>
+                )}
               </span>
               {runtime && <span>{runtime}</span>}
               {seasons && <span>{seasons}</span>}

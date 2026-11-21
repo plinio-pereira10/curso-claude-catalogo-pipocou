@@ -162,12 +162,13 @@ export async function searchTitles(type: MediaType, opts: { query: string; page:
 
 export async function getTitleDetails(type: MediaType, id: number): Promise<TitleDetails> {
   const raw = await tmdbFetch<
-    RawTitle & { runtime?: number | null; number_of_seasons?: number | null; genres: Genre[] }
+    RawTitle & { runtime?: number | null; number_of_seasons?: number | null; vote_count?: number; genres: Genre[] }
   >(`/${type}/${id}`)
   return {
     ...toTitleSummary(raw),
     runtime: type === 'movie' ? (raw.runtime ?? null) : null,
     seasons: type === 'tv' ? (raw.number_of_seasons ?? null) : null,
+    voteCount: raw.vote_count ?? 0,
     genres: raw.genres,
   }
 }

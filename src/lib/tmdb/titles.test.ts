@@ -120,8 +120,14 @@ test('getTitleDetails de filme mapeia duração, gêneros, sinopse e seasons nul
     overview: 'Paul...',
     runtime: 166,
     seasons: null,
+    voteCount: 0,
     genres: [{ id: 878, name: 'Ficção científica' }],
   })
+})
+
+test('getTitleDetails traz a quantidade de votos', async () => {
+  mockFetchJson({ id: 5, name: 'Round 6', poster_path: null, first_air_date: '2021-09-17', vote_average: 7.9, vote_count: 17963, overview: '', genres: [] })
+  expect((await getTitleDetails('tv', 5)).voteCount).toBe(17963)
 })
 
 test('getWatchProviders mantém só países com assinatura', async () => {
@@ -285,6 +291,7 @@ test('getTitleDetails de série mapeia temporadas e runtime null', async () => {
     overview: 'Uma herdeira...',
     runtime: null,
     seasons: 1,
+    voteCount: 0,
     genres: [{ id: 18, name: 'Drama' }],
   })
 })

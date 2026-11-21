@@ -36,6 +36,8 @@ export type TitleDetails = TitleSummary & {
   runtime: number | null
   /** Número de temporadas (só séries). */
   seasons: number | null
+  /** Quantas pessoas deram nota no TMDB. */
+  voteCount: number
   genres: Genre[]
 }
 

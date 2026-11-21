@@ -1,4 +1,4 @@
-import { formatRuntime, formatRating, formatSeasons } from './format'
+import { formatRuntime, formatRating, formatSeasons, formatVotes } from './format'
 
 test('formatRuntime mostra horas e minutos com dois dígitos', () => {
   expect(formatRuntime(166)).toBe('2h46min')
@@ -29,4 +29,15 @@ test('formatSeasons', () => {
 test('formatRating sem votos mostra "Sem nota"', () => {
   expect(formatRating(0)).toBe('Sem nota')
   expect(formatRating(8.234)).toBe('8.2')
+})
+
+test('formatVotes', () => {
+  expect(formatVotes(0)).toBeNull()
+  expect(formatVotes(1)).toBe('1 voto')
+  expect(formatVotes(44)).toBe('44 votos')
+  expect(formatVotes(999)).toBe('999 votos')
+  expect(formatVotes(1000)).toBe('1 mil votos')
+  expect(formatVotes(1234)).toBe('1,2 mil votos')
+  expect(formatVotes(9960)).toBe('10 mil votos')
+  expect(formatVotes(17963)).toBe('18 mil votos')
 })
