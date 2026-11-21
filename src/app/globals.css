@@ -19,6 +19,7 @@
   --color-suave: var(--suave);
   --color-ambar: var(--ambar);
   --font-sans: var(--font-figtree);
+  --font-logo: var(--font-fredoka);
 }
 
 /* Esconde a barra de rolagem das faixas que rolam para o lado (continua rolando). */

@@ -1,10 +1,10 @@
-import Link from 'next/link'
 import { Suspense } from 'react'
 import type { Filters } from '@/lib/filters'
 import type { MediaType } from '@/lib/media'
 import type { Provider } from '@/lib/tmdb/types'
-import { FOCUS_RING, GUTTER } from '@/lib/ui'
+import { GUTTER } from '@/lib/ui'
 import { AccountNav } from './AccountNav'
+import { Logo } from './Logo'
 import { MediaTabs, MediaTabsFallback } from './MediaTabs'
 import { ProviderFilter } from './ProviderFilter'
 import { SearchBox } from './SearchBox'
@@ -18,7 +18,7 @@ type Props = {
   filters?: Omit<Filters, 'page'>
 }
 
-/** Menu do topo: Catálogo · Filmes | Séries · logos dos streamings · busca · conta (Minhas listas / Entrar). */
+/** Menu do topo: logo Pipocou · Filmes | Séries · logos dos streamings · busca · conta (Minhas listas / Entrar). */
 export function TopBar({ type, overlay = false, providers, filters }: Props) {
   const position = overlay
     ? 'absolute inset-x-0 top-0 z-20 bg-linear-to-b from-noite/90 via-noite/50 to-transparent pb-10'
@@ -27,9 +27,7 @@ export function TopBar({ type, overlay = false, providers, filters }: Props) {
   return (
     <header className={`${position} ${GUTTER} pt-4`}>
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-        <Link href="/" className={`rounded text-lg font-extrabold ${FOCUS_RING}`}>
-          🎬 Catálogo
-        </Link>
+        <Logo />
 
         {/* As abas leem o endereço (filtros); enquanto isso, mostra a versão sem filtros. */}
         <Suspense fallback={<MediaTabsFallback />}>

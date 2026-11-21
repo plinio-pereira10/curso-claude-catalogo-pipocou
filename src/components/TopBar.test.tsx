@@ -26,3 +26,9 @@ test('TopBar com streamings mostra os logos como filtro', () => {
   expect(screen.getByRole('group', { name: 'Filtrar por streaming' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Netflix' })).toBeInTheDocument()
 })
+
+test('TopBar mostra o logo Pipocou, sem o nome antigo', () => {
+  render(<TopBar type="movie" />)
+  expect(screen.getByRole('link', { name: 'Pipocou' })).toHaveAttribute('href', '/')
+  expect(screen.queryByText(/Catálogo/)).toBeNull()
+})

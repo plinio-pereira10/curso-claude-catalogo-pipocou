@@ -7,6 +7,7 @@ import { summarizeAvailability } from '@/lib/availability'
 import { formatRating, formatRuntime, formatSeasons, formatVotes } from '@/lib/format'
 import { backdropUrl, posterUrl } from '@/lib/images'
 import { getCurrentUser } from '@/lib/auth'
+import { pageTitle } from '@/lib/site'
 import { detailPath, MEDIA, type MediaType } from '@/lib/media'
 import { TmdbError } from '@/lib/tmdb/client'
 import { getTitleDetails, getWatchProviders } from '@/lib/tmdb/titles'
@@ -48,10 +49,10 @@ const loadTitle = cache(async (type: MediaType, rawId: string) => {
   }
 })
 
-/** Título da aba do navegador: "<nome> — Catálogo". */
+/** Título da aba do navegador: "<nome> — Pipocou". */
 export async function titleMetadata(type: MediaType, params: Params): Promise<Metadata> {
   const { details } = await loadTitle(type, (await params).id)
-  return { title: `${details.title} — Catálogo` }
+  return { title: pageTitle(details.title) }
 }
 
 /** Página de detalhes, usada por /filme/[id] e /serie/[id]. */

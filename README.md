@@ -1,4 +1,4 @@
-# Catálogo de Filmes
+# Pipocou — filmes e séries nos streamings
 
 Site que mostra os filmes disponíveis **agora** nos streamings do Brasil (só assinatura), com dados do [TMDB](https://www.themoviedb.org).
 
