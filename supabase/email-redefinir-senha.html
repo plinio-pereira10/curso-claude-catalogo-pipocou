@@ -1,0 +1,16 @@
+<!--
+  Modelo do e-mail "Esqueci minha senha".
+  Onde colar: Supabase → Authentication → Emails → Templates → "Reset Password".
+  Assunto (Subject): Crie uma senha nova no Catálogo
+  Corpo (Message body): todo o HTML abaixo desta nota.
+
+  O link usa {{ .RedirectTo }} (o endereço do site que pediu: o publicado ou o localhost)
+  e {{ .TokenHash }} (o código de uso único). Não altere essa parte.
+-->
+<h2>Crie uma senha nova</h2>
+<p>Recebemos um pedido para criar uma senha nova para a sua conta no Catálogo de Filmes e Séries.</p>
+<p>
+  <a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery">Criar senha nova</a>
+</p>
+<p>O link vale por pouco tempo e só pode ser usado uma vez.</p>
+<p>Se você não pediu uma senha nova, pode ignorar este e-mail: a sua senha atual continua a mesma.</p>

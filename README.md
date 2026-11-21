@@ -31,7 +31,10 @@ O login e as listas "Quero assistir" / "Já assisti" usam o [Supabase](https://s
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    ```
    Nunca use a chave **secret / service_role** no site.
-5. Para conferir a segurança (ninguém vê as listas de outra pessoa): `node --env-file=.env.local scripts/check-rls.mjs` → deve terminar com **RLS OK**. O script cria duas contas de teste, que podem ser apagadas em Authentication → Users.
+5. **"Esqueci minha senha"** (no plano gratuito, o e-mail só chega para o e-mail da sua conta no Supabase):
+   - **Authentication → URL Configuration**: em **Site URL**, o endereço do site publicado; em **Redirect URLs**, adicione `https://SEU-SITE.vercel.app/**` e `http://localhost:3000/**`.
+   - **Authentication → Emails → Templates → Reset Password**: assunto e corpo do arquivo `supabase/email-redefinir-senha.html`.
+6. Para conferir a segurança (ninguém vê as listas de outra pessoa): `node --env-file=.env.local scripts/check-rls.mjs` → deve terminar com **RLS OK**. O script cria duas contas de teste, que podem ser apagadas em Authentication → Users.
 
 ## Comandos
 
