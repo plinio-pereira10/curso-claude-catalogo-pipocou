@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 const { signIn, signUp } = vi.hoisted(() => ({ signIn: vi.fn(), signUp: vi.fn() }))
-vi.mock('@/app/actions/auth', () => ({ signIn, signUp }))
+vi.mock('@/app/actions/auth', () => ({ signIn, signUp, requestPasswordReset: vi.fn(), updatePassword: vi.fn() }))
 
 import { AuthForm } from './AuthForm'
 
@@ -32,4 +32,14 @@ test('AuthForm envia e mostra a mensagem de erro devolvida', async () => {
   const sent = signIn.mock.calls[0][1] as FormData
   expect(sent.get('email')).toBe('p@x.com')
   expect(sent.get('voltar')).toBe('/')
+})
+
+test('AuthForm entrar tem o link Esqueci minha senha', () => {
+  render(<AuthForm mode="entrar" voltar="/" />)
+  expect(screen.getByRole('link', { name: 'Esqueci minha senha' })).toHaveAttribute('href', '/esqueci-senha')
+})
+
+test('AuthForm criar conta não mostra Esqueci minha senha', () => {
+  render(<AuthForm mode="criar-conta" voltar="/" />)
+  expect(screen.queryByRole('link', { name: 'Esqueci minha senha' })).toBeNull()
 })

@@ -1,19 +1,27 @@
 vi.mock('server-only', () => ({}))
 
-const { auth, redirect } = vi.hoisted(() => ({
-  auth: { signInWithPassword: vi.fn(), signUp: vi.fn(), signOut: vi.fn() },
+const { auth, redirect, requestHeaders } = vi.hoisted(() => ({
+  auth: {
+    signInWithPassword: vi.fn(),
+    signUp: vi.fn(),
+    signOut: vi.fn(),
+    resetPasswordForEmail: vi.fn(),
+    updateUser: vi.fn(),
+  },
   // como o redirect de verdade, interrompe a função lançando um erro
   redirect: vi.fn((path: string) => {
     throw new Error(`REDIRECT:${path}`)
   }),
+  requestHeaders: new Map<string, string>(),
 }))
 vi.mock('@/lib/supabase/server', () => ({ createSupabaseServerClient: async () => ({ auth }) }))
+vi.mock('next/headers', () => ({ headers: async () => ({ get: (name: string) => requestHeaders.get(name) ?? null }) }))
 vi.mock('next/navigation', async (importOriginal) => ({
   ...(await importOriginal<typeof import('next/navigation')>()),
   redirect,
 }))
 
-import { signIn, signOut, signUp } from './auth'
+import { requestPasswordReset, signIn, signOut, signUp, updatePassword } from './auth'
 
 function form(fields: Record<string, string>) {
   const data = new FormData()
@@ -94,4 +102,87 @@ test('signOut sai e vai para a página inicial', async () => {
   auth.signOut.mockResolvedValue({ error: null })
   await expect(signOut()).rejects.toThrow('REDIRECT:/')
   expect(auth.signOut).toHaveBeenCalled()
+})
+
+// ---- Esqueci minha senha ----
+
+const NEUTRAL = 'Se existir uma conta com esse e-mail, enviamos um link para criar uma senha nova.'
+const LINK_EXPIRED = 'Este link não vale mais. Peça um novo abaixo.'
+
+test('requestPasswordReset chama o Supabase com redirectTo da origem e devolve a mensagem neutra', async () => {
+  requestHeaders.clear()
+  requestHeaders.set('host', 'curso-claude-code-chi.vercel.app')
+  requestHeaders.set('x-forwarded-proto', 'https')
+  auth.resetPasswordForEmail.mockResolvedValue({ error: null })
+  await expect(requestPasswordReset({ error: null, sent: false }, form({ email: ' p@x.com ' }))).resolves.toEqual({
+    error: null,
+    sent: true,
+  })
+  expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('p@x.com', {
+    redirectTo: 'https://curso-claude-code-chi.vercel.app',
+  })
+})
+
+test('requestPasswordReset no localhost usa http', async () => {
+  requestHeaders.clear()
+  requestHeaders.set('host', 'localhost:3000')
+  auth.resetPasswordForEmail.mockResolvedValue({ error: null })
+  await requestPasswordReset({ error: null, sent: false }, form({ email: 'p@x.com' }))
+  expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('p@x.com', { redirectTo: 'http://localhost:3000' })
+})
+
+test('requestPasswordReset com e-mail inválido avisa sem chamar o Supabase', async () => {
+  await expect(requestPasswordReset({ error: null, sent: false }, form({ email: 'p' }))).resolves.toEqual({
+    error: 'Informe um e-mail válido.',
+    sent: false,
+  })
+  expect(auth.resetPasswordForEmail).not.toHaveBeenCalled()
+})
+
+test('requestPasswordReset com erro do Supabase (exceto limite) devolve a mesma mensagem neutra', async () => {
+  requestHeaders.clear()
+  requestHeaders.set('host', 'localhost:3000')
+  for (const code of ['email_address_not_authorized', 'user_not_found']) {
+    auth.resetPasswordForEmail.mockResolvedValueOnce({ error: { code } })
+    await expect(requestPasswordReset({ error: null, sent: false }, form({ email: 'p@x.com' }))).resolves.toEqual({
+      error: null,
+      sent: true,
+    })
+  }
+  expect(NEUTRAL).toBeTruthy()
+})
+
+test('requestPasswordReset com limite atingido avisa para esperar', async () => {
+  requestHeaders.clear()
+  requestHeaders.set('host', 'localhost:3000')
+  auth.resetPasswordForEmail.mockResolvedValue({ error: { code: 'over_email_send_rate_limit', status: 429 } })
+  await expect(requestPasswordReset({ error: null, sent: false }, form({ email: 'p@x.com' }))).resolves.toEqual({
+    error: 'Muitos pedidos. Espere alguns minutos e tente de novo.',
+    sent: false,
+  })
+})
+
+test('updatePassword sem sessão orienta a pedir novo link', async () => {
+  auth.updateUser.mockResolvedValue({ error: { name: 'AuthSessionMissingError', message: 'Auth session missing!' } })
+  await expect(updatePassword({ error: null }, form({ password: 'nova123' }))).resolves.toEqual({ error: LINK_EXPIRED })
+})
+
+test('updatePassword com senha curta não chama o Supabase', async () => {
+  await expect(updatePassword({ error: null }, form({ password: '123' }))).resolves.toEqual({
+    error: 'A senha precisa ter pelo menos 6 caracteres.',
+  })
+  expect(auth.updateUser).not.toHaveBeenCalled()
+})
+
+test('updatePassword igual à atual avisa', async () => {
+  auth.updateUser.mockResolvedValue({ error: { code: 'same_password' } })
+  await expect(updatePassword({ error: null }, form({ password: 'senha123' }))).resolves.toEqual({
+    error: 'A senha nova precisa ser diferente da atual.',
+  })
+})
+
+test('updatePassword com sucesso vai para a página inicial', async () => {
+  auth.updateUser.mockResolvedValue({ error: null })
+  await expect(updatePassword({ error: null }, form({ password: 'nova123' }))).rejects.toThrow('REDIRECT:/')
+  expect(auth.updateUser).toHaveBeenCalledWith({ password: 'nova123' })
 })

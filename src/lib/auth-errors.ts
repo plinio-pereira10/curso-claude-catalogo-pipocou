@@ -5,6 +5,11 @@ export const AUTH_MESSAGES = {
   shortPassword: 'A senha precisa ter pelo menos 6 caracteres.',
   invalidEmail: 'Informe um e-mail válido.',
   connection: 'Não foi possível conectar. Tente de novo.',
+  // "Esqueci minha senha"
+  resetSent: 'Se existir uma conta com esse e-mail, enviamos um link para criar uma senha nova.',
+  tooManyRequests: 'Muitos pedidos. Espere alguns minutos e tente de novo.',
+  linkExpired: 'Este link não vale mais. Peça um novo abaixo.',
+  samePassword: 'A senha nova precisa ser diferente da atual.',
 }
 
 /** Tamanho mínimo da senha (padrão do Supabase). */

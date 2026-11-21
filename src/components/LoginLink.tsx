@@ -7,7 +7,7 @@ import { FOCUS_RING } from '@/lib/ui'
 /** Botão "Entrar" que, depois do login, volta para a página onde a pessoa estava. */
 export function LoginLink() {
   const pathname = usePathname()
-  const isAuthPage = pathname === '/entrar' || pathname === '/criar-conta'
+  const isAuthPage = ['/entrar', '/criar-conta', '/esqueci-senha', '/nova-senha'].includes(pathname)
   const href = pathname === '/' || isAuthPage ? '/entrar' : `/entrar?voltar=${encodeURIComponent(pathname)}`
 
   return (

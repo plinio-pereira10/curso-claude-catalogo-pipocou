@@ -63,6 +63,14 @@ export function AuthForm({ mode, voltar }: { mode: Mode; voltar: string }) {
         )}
       </label>
 
+      {mode === 'entrar' && (
+        <p className="-mt-2 text-right text-sm">
+          <Link href="/esqueci-senha" className={`rounded text-suave underline hover:text-texto ${FOCUS_RING}`}>
+            Esqueci minha senha
+          </Link>
+        </p>
+      )}
+
       {state.error && (
         <p role="alert" className="rounded-lg border border-red-400/40 bg-red-400/10 px-4 py-2.5 text-sm text-red-200">
           {state.error}

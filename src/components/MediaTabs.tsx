@@ -11,7 +11,7 @@ import { FOCUS_RING } from '@/lib/ui'
 const TABS: MediaType[] = ['movie', 'tv']
 
 /** Páginas que não são do catálogo: nenhuma das duas abas fica destacada. */
-const NON_CATALOG = ['/minhas-listas', '/entrar', '/criar-conta']
+const NON_CATALOG = ['/minhas-listas', '/entrar', '/criar-conta', '/esqueci-senha', '/nova-senha']
 
 /** Qual aba está ativa, pelo endereço: /series e /serie/... são Séries; o catálogo restante é Filmes. */
 function activeTab(pathname: string): MediaType | null {
