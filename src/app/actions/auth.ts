@@ -95,7 +95,9 @@ export async function requestPasswordReset(_prev: ResetRequestState, form: FormD
 
   try {
     const supabase = await createSupabaseServerClient()
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: await siteOrigin() })
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${await siteOrigin()}/auth/confirm`,
+    })
     if (error?.code === 'over_email_send_rate_limit' || error?.code === 'over_request_rate_limit' || error?.status === 429) {
       return { error: AUTH_MESSAGES.tooManyRequests, sent: false }
     }

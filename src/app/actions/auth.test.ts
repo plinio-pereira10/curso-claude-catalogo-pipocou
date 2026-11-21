@@ -119,7 +119,7 @@ test('requestPasswordReset chama o Supabase com redirectTo da origem e devolve a
     sent: true,
   })
   expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('p@x.com', {
-    redirectTo: 'https://curso-claude-code-chi.vercel.app',
+    redirectTo: 'https://curso-claude-code-chi.vercel.app/auth/confirm',
   })
 })
 
@@ -128,7 +128,7 @@ test('requestPasswordReset no localhost usa http', async () => {
   requestHeaders.set('host', 'localhost:3000')
   auth.resetPasswordForEmail.mockResolvedValue({ error: null })
   await requestPasswordReset({ error: null, sent: false }, form({ email: 'p@x.com' }))
-  expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('p@x.com', { redirectTo: 'http://localhost:3000' })
+  expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('p@x.com', { redirectTo: 'http://localhost:3000/auth/confirm' })
 })
 
 test('requestPasswordReset com e-mail inválido avisa sem chamar o Supabase', async () => {

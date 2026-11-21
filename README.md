@@ -33,7 +33,8 @@ O login e as listas "Quero assistir" / "Já assisti" usam o [Supabase](https://s
    Nunca use a chave **secret / service_role** no site.
 5. **"Esqueci minha senha"** (no plano gratuito, o e-mail só chega para o e-mail da sua conta no Supabase):
    - **Authentication → URL Configuration**: em **Site URL**, o endereço do site publicado; em **Redirect URLs**, adicione `https://SEU-SITE.vercel.app/**` e `http://localhost:3000/**`.
-   - **Authentication → Emails → Templates → Reset Password**: assunto e corpo do arquivo `supabase/email-redefinir-senha.html`.
+   - O e-mail usa o modelo padrão do Supabase (em inglês), e o link só funciona **no mesmo navegador** em que foi pedido.
+   - **Futuro (SMTP próprio, ex.: um Gmail só para o site):** permite editar o modelo em **Authentication → Emails → Templates → Reset Password** com o arquivo `supabase/email-redefinir-senha.html` (em português, link que funciona em qualquer aparelho) e enviar para qualquer pessoa.
 6. Para conferir a segurança (ninguém vê as listas de outra pessoa): `node --env-file=.env.local scripts/check-rls.mjs` → deve terminar com **RLS OK**. O script cria duas contas de teste, que podem ser apagadas em Authentication → Users.
 
 ## Comandos
