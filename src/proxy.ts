@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { SESSION_COOKIE_OPTIONS, supabaseEnv, supabaseFetch } from '@/lib/supabase/env'
+import { SESSION_COOKIE_OPTIONS, SUPABASE_TIMEOUT_MS, supabaseEnv, supabaseFetch, withTimeout } from '@/lib/supabase/env'
 
 /**
  * Roda antes de cada página (no Next.js 16, o antigo "middleware" se chama proxy).
@@ -33,7 +33,8 @@ export async function proxy(request: NextRequest) {
 
   try {
     // Confere a sessão com o Supabase (e renova se precisar). Não decide nada sobre acesso aqui.
-    await supabase.auth.getUser()
+    // Limite total de 5 s: com o Supabase travado, a página segue sem esperar a renovação.
+    await withTimeout(supabase.auth.getUser(), SUPABASE_TIMEOUT_MS)
   } catch (error) {
     console.error('Supabase: não foi possível renovar a sessão', error)
   }

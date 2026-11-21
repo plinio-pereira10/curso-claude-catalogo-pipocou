@@ -73,3 +73,15 @@ test('matcher do proxy não inclui /api', () => {
   expect(pattern.test('/series')).toBe(true)
   expect(pattern.test('/serie/93405')).toBe(true)
 })
+
+test('Supabase travado não segura a página por mais de 5 s', async () => {
+  vi.useFakeTimers()
+  try {
+    createServerClient.mockImplementation(() => ({ auth: { getUser: () => new Promise(() => {}) } }))
+    const result = proxy(new NextRequest('http://localhost/series'))
+    await vi.advanceTimersByTimeAsync(5000)
+    expect((await result).status).toBe(200)
+  } finally {
+    vi.useRealTimers()
+  }
+})

@@ -86,3 +86,15 @@ test('lookupCurrentUser marca falha quando a chamada lança erro', async () => {
   getUser.mockRejectedValue(new TypeError('fetch failed'))
   await expect(lookupCurrentUser()).resolves.toEqual({ user: null, failed: true })
 })
+
+test('Supabase travado (renovando a sessão sem parar) → em 5 s vira "não logado", com falha', async () => {
+  vi.useFakeTimers()
+  try {
+    getUser.mockReturnValue(new Promise(() => {})) // nunca responde, como as tentativas de renovar
+    const result = lookupCurrentUser()
+    await vi.advanceTimersByTimeAsync(5000)
+    await expect(result).resolves.toEqual({ user: null, failed: true })
+  } finally {
+    vi.useRealTimers()
+  }
+})

@@ -41,3 +41,23 @@ export async function supabaseFetch(input: RequestInfo | URL, init: RequestInit 
     outer?.removeEventListener('abort', onOuterAbort)
   }
 }
+
+/** Valor devolvido por `withTimeout` quando o tempo acaba. */
+export const TIMED_OUT = Symbol('tempo esgotado')
+
+/**
+ * Espera uma tarefa por no máximo `ms`. Se o tempo acabar, devolve TIMED_OUT (a tarefa pode
+ * continuar sozinha, mas ninguém espera por ela). Serve para limitar o tempo total de uma
+ * pergunta ao Supabase que faz várias tentativas (ex.: renovar a sessão).
+ */
+export async function withTimeout<T>(task: Promise<T>, ms: number): Promise<T | typeof TIMED_OUT> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<typeof TIMED_OUT>((resolve) => {
+    timer = setTimeout(() => resolve(TIMED_OUT), ms)
+  })
+  try {
+    return await Promise.race([task, timeout])
+  } finally {
+    clearTimeout(timer)
+  }
+}

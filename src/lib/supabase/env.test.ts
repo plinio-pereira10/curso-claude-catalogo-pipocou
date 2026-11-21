@@ -1,4 +1,4 @@
-import { SESSION_COOKIE_OPTIONS, SUPABASE_TIMEOUT_MS, supabaseFetch } from './env'
+import { SESSION_COOKIE_OPTIONS, SUPABASE_TIMEOUT_MS, TIMED_OUT, supabaseFetch, withTimeout } from './env'
 
 const fetchMock = vi.fn()
 
@@ -54,4 +54,15 @@ test('supabaseFetch respeita um cancelamento vindo de quem chamou', async () => 
   const result = supabaseFetch('https://exemplo.supabase.co/x', { signal: controller.signal }).catch((e: Error) => e)
   controller.abort(new Error('cancelado'))
   expect(((await result) as Error).message).toBe('cancelado')
+})
+
+test('withTimeout devolve o resultado quando chega a tempo', async () => {
+  await expect(withTimeout(Promise.resolve('ok'), 5000)).resolves.toBe('ok')
+  expect(vi.getTimerCount()).toBe(0)
+})
+
+test('withTimeout desiste no tempo total, mesmo que a tarefa continue', async () => {
+  const result = withTimeout(new Promise(() => {}), 5000)
+  await vi.advanceTimersByTimeAsync(5000)
+  await expect(result).resolves.toBe(TIMED_OUT)
 })

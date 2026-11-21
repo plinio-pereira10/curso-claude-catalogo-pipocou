@@ -1,7 +1,7 @@
 import 'server-only'
 import { unstable_rethrow } from 'next/navigation'
 import { cache } from 'react'
-import { supabaseEnv } from '@/lib/supabase/env'
+import { SUPABASE_TIMEOUT_MS, supabaseEnv, TIMED_OUT, withTimeout } from '@/lib/supabase/env'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 /** A pessoa logada, só com o que o site usa. */
@@ -29,7 +29,13 @@ export const lookupCurrentUser = cache(async (): Promise<UserLookup> => {
   if (!supabaseEnv()) return { user: null, failed: false }
   try {
     const supabase = await createSupabaseServerClient()
-    const { data, error } = await supabase.auth.getUser()
+    // Limite total de 5 s: renovar a sessão pode fazer várias tentativas seguidas.
+    const answer = await withTimeout(supabase.auth.getUser(), SUPABASE_TIMEOUT_MS)
+    if (answer === TIMED_OUT) {
+      console.error('Supabase: tempo esgotado ao ler o usuário')
+      return { user: null, failed: true }
+    }
+    const { data, error } = answer
     const user = data?.user
     if (error) {
       // "sem sessão" é a resposta normal para quem não entrou; o resto é falha de verdade
