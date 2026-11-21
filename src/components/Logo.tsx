@@ -20,7 +20,12 @@ export function Pipoca({ className }: { className?: string }) {
  */
 export function Logo() {
   return (
-    <Link href="/" aria-label={SITE_NAME} className={`rounded font-logo text-[26px] leading-none font-bold tracking-tight ${FOCUS_RING}`}>
+    // pt-2.5: espaço no topo para a pipoca (que fica acima das letras) ficar dentro do contorno de foco
+    <Link
+      href="/"
+      aria-label={SITE_NAME}
+      className={`inline-block rounded-md px-1 pt-2.5 pb-1 font-logo text-[26px] leading-none font-bold tracking-tight ${FOCUS_RING}`}
+    >
       <span aria-hidden="true">
         P
         <span className="relative inline-block">
