@@ -38,8 +38,10 @@ export function TitleCard({ item, type, mark, showKind = false }: CardProps) {
   const poster = posterUrl(item.posterPath)
 
   return (
-    <Link href={detailPath(type, item.id)} className="group block rounded-lg outline-none">
-      <div className="relative aspect-video overflow-hidden rounded-lg bg-superficie ring-white motion-safe:transition-transform motion-safe:duration-200 group-hover:scale-[1.04] group-hover:ring-2 group-focus-visible:scale-[1.04] group-focus-visible:ring-2">
+    // Grupo com nome ("card"): a fileira em volta também tem "group" (para as setas), e um
+    // "group-hover:" sem nome acenderia todos os cartões quando o mouse está na fileira.
+    <Link href={detailPath(type, item.id)} className="group/card block rounded-lg outline-none">
+      <div className="relative aspect-video overflow-hidden rounded-lg bg-superficie ring-white motion-safe:transition-transform motion-safe:duration-200 group-hover/card:scale-[1.04] group-hover/card:ring-2 group-focus-visible/card:scale-[1.04] group-focus-visible/card:ring-2">
         {backdrop ? (
           <Image src={backdrop} alt={item.title} fill sizes={CARD_SIZES} className="object-cover" />
         ) : poster ? (

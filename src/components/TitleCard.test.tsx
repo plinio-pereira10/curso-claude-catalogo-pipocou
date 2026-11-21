@@ -58,3 +58,13 @@ test('TitleCard com showKind mostra Filme ou Série', () => {
   rerender(<TitleCard type="tv" item={base} showKind />)
   expect(screen.getByText('Série')).toBeInTheDocument()
 })
+
+test('TitleCard destaca só o próprio cartão (grupo com nome, não o "group" da fileira)', () => {
+  // A fileira (TitleRow) também tem a classe "group". Um "group-hover:" sem nome reage ao mouse
+  // em cima da fileira inteira e acendia todos os cartões juntos.
+  const { container } = render(<TitleCard type="movie" item={base} />)
+  const link = screen.getByRole('link')
+  expect(link.className.split(' ')).toContain('group/card')
+  expect(link.className.split(' ')).not.toContain('group')
+  expect(container.innerHTML).not.toMatch(/group-(hover|focus-visible):/)
+})
