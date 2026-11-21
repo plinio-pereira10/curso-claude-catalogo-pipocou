@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { formatRating } from '@/lib/format'
 import type { FeaturedItem } from '@/lib/home'
 import { backdropUrl, logoUrl, titleLogoUrl } from '@/lib/images'
@@ -15,8 +15,18 @@ export const ROTATE_MS = 8000
 /**
  * Banner do topo da tela inicial. Mostra um destaque por vez e troca sozinho a cada 8 s,
  * menos quando o mouse/foco está nele ou quando o sistema pede menos movimento.
+ * `header` (o menu do topo) fica dentro do banner, por cima da imagem, mas no fluxo normal:
+ * ele empurra o conteúdo para baixo pela altura real dele (1 a 4 linhas, conforme a tela).
  */
-export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedItem[] }) {
+export function HeroBanner({
+  type,
+  items,
+  header,
+}: {
+  type: MediaType
+  items: FeaturedItem[]
+  header?: ReactNode
+}) {
   const [index, setIndex] = useState(0)
   // mouse em cima e foco do teclado dentro pausam separadamente: um não desfaz o outro
   const [hovered, setHovered] = useState(false)
@@ -67,12 +77,15 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
       <div className="absolute inset-0 bg-linear-to-r from-noite via-noite/70 to-transparent sm:via-noite/40" />
       <div className="absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-noite via-noite/60 to-transparent" />
 
-      {/* pt reserva a área do menu do topo (2 linhas no celular, 1 nas telas maiores) */}
-      <div className={`relative z-10 flex flex-1 flex-col justify-end pt-36 pb-16 sm:pt-28 lg:pb-20 ${GUTTER}`}>
+      {header}
+
+      <div className={`relative z-10 flex flex-1 flex-col justify-end pt-4 pb-16 lg:pb-20 ${GUTTER}`}>
         <div className="max-w-xl space-y-4">
-          <h1>
+          {/* título com altura fixa e sinopse sempre com 3 linhas: todos os destaques têm a mesma altura,
+              então a página não "pula" quando o banner troca sozinho */}
+          <h1 className="flex h-24 items-end sm:h-28">
             {logoPath ? (
-              <span className="relative block h-24 w-[min(26rem,80vw)] sm:h-28">
+              <span className="relative block h-full w-[min(26rem,80vw)]">
                 <Image
                   src={titleLogoUrl(logoPath)}
                   alt={title.title}
@@ -82,7 +95,7 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
                 />
               </span>
             ) : (
-              <span className="block text-5xl leading-none font-extrabold tracking-tight text-balance lg:text-6xl">
+              <span className="line-clamp-2 text-5xl leading-none font-extrabold tracking-tight text-balance">
                 {title.title}
               </span>
             )}
@@ -105,7 +118,7 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
             {title.releaseYear && <span className="text-suave">{title.releaseYear}</span>}
           </p>
 
-          {title.overview && <p className="line-clamp-3 leading-relaxed text-texto/85">{title.overview}</p>}
+          <p className="line-clamp-3 min-h-[3lh] leading-relaxed text-texto/85">{title.overview}</p>
 
           <Link
             href={detailPath(type, title.id)}

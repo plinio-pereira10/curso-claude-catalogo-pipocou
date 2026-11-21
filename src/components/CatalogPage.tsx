@@ -58,8 +58,16 @@ async function Home({ type, filters }: { type: MediaType; filters: CurrentFilter
 
   return (
     <>
-      <TopBar type={type} overlay={hasHero} providers={providers} filters={filters} />
-      <HeroBanner type={type} items={home.featured} />
+      {hasHero ? (
+        // com banner, o menu vai dentro dele (por cima da imagem)
+        <HeroBanner
+          type={type}
+          items={home.featured}
+          header={<TopBar type={type} overlay providers={providers} filters={filters} />}
+        />
+      ) : (
+        <TopBar type={type} providers={providers} filters={filters} />
+      )}
       <div className="space-y-8 pt-6 pb-12">
         <div className={GUTTER}>
           <FilterBar type={type} genres={genres} filters={filters} />

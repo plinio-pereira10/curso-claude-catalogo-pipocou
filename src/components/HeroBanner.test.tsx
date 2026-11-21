@@ -60,6 +60,18 @@ test('o streaming aparece pelo nome na linha da nota, com o logo só decorativo'
   expect(line).toHaveTextContent('2024')
   // o nome já está em texto: o logo não é lido de novo pelo leitor de tela
   expect(screen.queryByRole('img', { name: 'Netflix' })).toBeNull()
+  // mas o logo continua lá, ao lado do nome
+  expect(line?.querySelector('img')).not.toBeNull()
+})
+
+test('o menu do topo fica dentro do banner, antes do conteúdo', () => {
+  render(<HeroBanner type="movie" items={[item(1)]} header={<nav aria-label="Menu" />} />)
+  const region = screen.getByRole('region', { name: 'Destaques' })
+  const menu = screen.getByRole('navigation', { name: 'Menu' })
+  expect(region).toContainElement(menu)
+  // o menu vem antes do botão no documento (empurra o conteúdo para baixo)
+  const link = screen.getByRole('link', { name: 'Ver detalhes' })
+  expect(menu.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 })
 
 test('Ver detalhes leva à página do título', () => {

@@ -11,7 +11,7 @@ import { SearchBox } from './SearchBox'
 
 type Props = {
   type: MediaType
-  /** Por cima do banner (fundo transparente). Senão, fundo azul-noite. */
+  /** Dentro do banner, por cima da imagem (fundo transparente). Senão, fundo azul-noite. */
   overlay?: boolean
   /** Nas listas: os streamings viram botões de filtro no menu. */
   providers?: Provider[]
@@ -21,7 +21,8 @@ type Props = {
 /** Menu do topo: logo Pipocou · Filmes | Séries · logos dos streamings · busca · conta (Minhas listas / Entrar). */
 export function TopBar({ type, overlay = false, providers, filters }: Props) {
   const position = overlay
-    ? 'absolute inset-x-0 top-0 z-20 bg-linear-to-b from-noite/90 via-noite/50 to-transparent pb-10'
+    ? // no fluxo normal (não absolute): a altura real do menu empurra o conteúdo do banner para baixo
+      'relative z-20 bg-linear-to-b from-noite/90 via-noite/50 to-transparent pb-10'
     : 'border-b border-linha bg-noite pb-4'
 
   return (
