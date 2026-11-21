@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { loadCatalogPage } from '@/lib/catalog'
-import { filtersToQuery, parseFilters, type Filters } from '@/lib/filters'
+import { currentFilters, filtersToQuery, parseFilters, type Filters } from '@/lib/filters'
 import { hasActiveFilters, loadHome } from '@/lib/home'
 import { MEDIA, type MediaType } from '@/lib/media'
 import { getGenres, getTopProviders } from '@/lib/tmdb/titles'
@@ -41,8 +41,7 @@ export function CatalogPage({ type, searchParams }: Props) {
 
 /** Lê os filtros da URL e decide entre tela inicial (fileiras) e grade. Sempre no servidor. */
 async function Catalog({ type, searchParams }: Props) {
-  const { providerId, genreId, minRating, q, doramas } = parseFilters(await searchParams)
-  const current: CurrentFilters = { providerId, genreId, minRating, q, doramas }
+  const current: CurrentFilters = currentFilters(parseFilters(await searchParams))
   return hasActiveFilters(current) ? <Grid type={type} filters={current} /> : <Home type={type} filters={current} />
 }
 

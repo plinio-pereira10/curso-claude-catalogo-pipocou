@@ -66,3 +66,13 @@ export function filtersToQuery(f: Omit<Filters, 'page' | 'doramas'> & { page?: n
   if (f.page && f.page > 1) params.set('page', String(f.page))
   return params.toString()
 }
+
+/**
+ * Todos os filtros escolhidos, sem a página (o que as telas e os botões usam).
+ * Copia o objeto inteiro: um filtro novo nunca é esquecido.
+ */
+export function currentFilters(f: Filters): Omit<Filters, 'page'> {
+  const copy: Partial<Filters> = { ...f }
+  delete copy.page
+  return copy as Omit<Filters, 'page'>
+}

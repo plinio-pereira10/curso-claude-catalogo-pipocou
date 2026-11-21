@@ -5,6 +5,7 @@ import type { Genre } from '@/lib/tmdb/types'
 import { DoramasToggle } from './DoramasToggle'
 import { GenreSelect } from './GenreSelect'
 import { RatingSelect } from './RatingSelect'
+import { SortSelect } from './SortSelect'
 
 type Props = {
   type: MediaType
@@ -13,7 +14,7 @@ type Props = {
   filters: Omit<Filters, 'page'>
 }
 
-/** Faixa com Gênero, Nota e Doramas. Durante uma busca ficam desligados e aparece o aviso da busca. */
+/** Faixa com Gênero, Nota, Ordem e Doramas. Durante uma busca ficam desligados e aparece o aviso da busca. */
 export function FilterBar({ type, genres, filters }: Props) {
   const searching = Boolean(filters.q)
   return (
@@ -26,6 +27,7 @@ export function FilterBar({ type, genres, filters }: Props) {
           disabled={searching}
         />
         <RatingSelect type={type} filters={filters} disabled={searching} />
+        <SortSelect type={type} filters={filters} disabled={searching} />
         <DoramasToggle type={type} filters={filters} disabled={searching} />
       </div>
       {searching && <p className="text-sm text-suave">{MEDIA[type].searchNote}</p>}

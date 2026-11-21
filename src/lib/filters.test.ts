@@ -1,4 +1,4 @@
-import { parseFilters, filtersToQuery } from './filters'
+import { currentFilters, parseFilters, filtersToQuery } from './filters'
 
 test('lê valores válidos', () => {
   expect(parseFilters({ provider: '8', genre: '35', q: ' duna ', page: '3' })).toEqual({
@@ -57,6 +57,11 @@ test('filtersToQuery escreve nota na ordem', () => {
   expect(filtersToQuery({ providerId: 8, genreId: 35, minRating: 7, doramas: true })).toBe(
     'provider=8&genre=35&nota=7&doramas=1',
   )
+})
+
+test('currentFilters copia todos os filtros, menos a página', () => {
+  const all = parseFilters({ provider: '8', genre: '35', nota: '8', ordem: 'nota', q: 'duna', doramas: '1', page: '3' })
+  expect(currentFilters(all)).toEqual({ providerId: 8, genreId: 35, minRating: 8, sort: 'rating', q: 'duna', doramas: true })
 })
 
 test('lê ordem=nota e ignora outros valores', () => {

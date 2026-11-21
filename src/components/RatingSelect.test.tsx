@@ -27,6 +27,12 @@ test('RatingSelect "Todas" tira a nota', async () => {
   expect(push).toHaveBeenCalledWith('/series?provider=8')
 })
 
+test('RatingSelect mantém a ordem', async () => {
+  render(<RatingSelect type="movie" filters={{ sort: 'rating', doramas: false }} disabled={false} />)
+  await userEvent.selectOptions(screen.getByLabelText('Nota:'), '7')
+  expect(push).toHaveBeenCalledWith('/?nota=7&ordem=nota')
+})
+
 test('RatingSelect desativado na busca', () => {
   render(<RatingSelect type="movie" filters={{ q: 'duna', doramas: false }} disabled />)
   expect(screen.getByLabelText('Nota:')).toBeDisabled()

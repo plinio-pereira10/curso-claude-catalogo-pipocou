@@ -41,6 +41,12 @@ test('MediaTabs marca Séries em /series', () => {
   expect(screen.getByRole('link', { name: 'Filmes' })).toHaveAttribute('href', '/')
 })
 
+test('MediaTabs leva a ordem ao trocar de aba', () => {
+  mockPath('/', 'ordem=nota&genre=35')
+  render(<MediaTabs />)
+  expect(screen.getByRole('link', { name: 'Séries' })).toHaveAttribute('href', '/series?ordem=nota')
+})
+
 test('MediaTabs leva a nota ao trocar de aba', () => {
   mockPath('/', 'nota=8&genre=35')
   render(<MediaTabs />)
