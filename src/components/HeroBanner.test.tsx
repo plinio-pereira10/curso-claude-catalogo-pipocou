@@ -52,6 +52,16 @@ test('mostra o logo do título quando existe; sem logo, o nome como título', ()
   expect(screen.getByRole('heading', { level: 1, name: 'Título 1' })).toBeInTheDocument()
 })
 
+test('o streaming aparece pelo nome na linha da nota, com o logo só decorativo', () => {
+  render(<HeroBanner type="movie" items={[item(1)]} />)
+  const line = screen.getByText('Netflix').closest('p')
+  expect(line).toHaveTextContent('Netflix')
+  expect(line).toHaveTextContent('7.5')
+  expect(line).toHaveTextContent('2024')
+  // o nome já está em texto: o logo não é lido de novo pelo leitor de tela
+  expect(screen.queryByRole('img', { name: 'Netflix' })).toBeNull()
+})
+
 test('Ver detalhes leva à página do título', () => {
   render(<HeroBanner type="movie" items={[item(7)]} />)
   expect(currentTitle()).toBe('/filme/7')

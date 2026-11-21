@@ -40,7 +40,8 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
     <section
       aria-roledescription="carrossel"
       aria-label="Destaques"
-      className="relative h-[75vh] min-h-[34rem] overflow-hidden sm:h-[65vh] sm:min-h-[28rem] lg:h-[70vh]"
+      // altura mínima (não fixa): em tela baixa o banner cresce em vez de o conteúdo subir até o menu
+      className="relative flex min-h-[max(75vh,34rem)] flex-col overflow-hidden sm:min-h-[max(65vh,28rem)] lg:min-h-[max(70vh,28rem)]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setFocusInside(true)}
@@ -66,16 +67,9 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
       <div className="absolute inset-0 bg-linear-to-r from-noite via-noite/70 to-transparent sm:via-noite/40" />
       <div className="absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-noite via-noite/60 to-transparent" />
 
-      <div className={`relative z-10 flex h-full flex-col justify-end pb-16 lg:pb-20 ${GUTTER}`}>
+      {/* pt reserva a área do menu do topo (2 linhas no celular, 1 nas telas maiores) */}
+      <div className={`relative z-10 flex flex-1 flex-col justify-end pt-36 pb-16 sm:pt-28 lg:pb-20 ${GUTTER}`}>
         <div className="max-w-xl space-y-4">
-          <Image
-            src={logoUrl(provider.logoPath)}
-            alt={provider.name}
-            width={28}
-            height={28}
-            className="size-7 rounded-md"
-          />
-
           <h1>
             {logoPath ? (
               <span className="relative block h-24 w-[min(26rem,80vw)] sm:h-28">
@@ -94,7 +88,12 @@ export function HeroBanner({ type, items }: { type: MediaType; items: FeaturedIt
             )}
           </h1>
 
-          <p className="flex gap-4 text-sm font-semibold">
+          <p className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold">
+            {/* o nome do streaming já está em texto: o logo é só decorativo */}
+            <span className="flex items-center gap-2">
+              <Image src={logoUrl(provider.logoPath)} alt="" width={20} height={20} className="size-5 rounded" />
+              {provider.name}
+            </span>
             <span>
               {title.voteAverage > 0 && (
                 <span aria-hidden className="mr-1 text-ambar">
