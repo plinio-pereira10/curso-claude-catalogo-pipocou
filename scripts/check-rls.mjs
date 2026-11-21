@@ -70,6 +70,23 @@ try {
   const insertByAnon = await anon.from('user_titles').insert(row).select()
   check(Boolean(insertByAnon.error), 'quem não está logado não consegue gravar')
 
+  // Limites da tabela (23514 = violação de uma regra CHECK)
+  const hugeTitle = await a.client.from('user_titles').insert({ ...row, tmdb_id: 1, title: 'a'.repeat(301) }).select()
+  check(hugeTitle.error?.code === '23514', 'o banco recusa título com mais de 300 caracteres')
+
+  const foreignImage = await a.client
+    .from('user_titles')
+    .insert({ ...row, tmdb_id: 2, poster_path: 'https://site-mal.com/x.jpg' })
+    .select()
+  check(foreignImage.error?.code === '23514', 'o banco recusa imagem fora do formato do TMDB')
+
+  const fakeDate = await a.client
+    .from('user_titles')
+    .insert({ ...row, tmdb_id: 3, created_at: '2000-01-01T00:00:00Z' })
+    .select('created_at')
+  const createdAt = fakeDate.data?.[0] ? new Date(fakeDate.data[0].created_at).getTime() : 0
+  check(Math.abs(Date.now() - createdAt) < 10 * 60 * 1000, 'a data de criação é definida pelo banco, não por quem grava')
+
 } finally {
   // apaga a linha de teste mesmo se alguma verificação falhar no meio
   await a.client.from('user_titles').delete().eq('user_id', a.id)

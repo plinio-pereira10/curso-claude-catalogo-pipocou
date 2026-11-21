@@ -23,13 +23,41 @@ create table if not exists public.user_titles (
 create index if not exists user_titles_by_list
   on public.user_titles (user_id, status, updated_at desc);
 
--- updated_at muda a cada alteração (trocar de lista conta como "recente")
+-- Limites do "retrato" (os mesmos que o site confere antes de gravar, em src/lib/marks.ts).
+-- Impedem que alguém encha o banco com textos enormes ou guarde imagens de outros sites.
+alter table public.user_titles drop constraint if exists user_titles_title_tamanho;
+alter table public.user_titles add constraint user_titles_title_tamanho
+  check (char_length(title) between 1 and 300);
+
+alter table public.user_titles drop constraint if exists user_titles_poster_formato;
+alter table public.user_titles add constraint user_titles_poster_formato
+  check (poster_path is null or (char_length(poster_path) <= 100 and poster_path ~ '^/[A-Za-z0-9._-]+$' and poster_path not like '%..%'));
+
+alter table public.user_titles drop constraint if exists user_titles_backdrop_formato;
+alter table public.user_titles add constraint user_titles_backdrop_formato
+  check (backdrop_path is null or (char_length(backdrop_path) <= 100 and backdrop_path ~ '^/[A-Za-z0-9._-]+$' and backdrop_path not like '%..%'));
+
+alter table public.user_titles drop constraint if exists user_titles_ano_faixa;
+alter table public.user_titles add constraint user_titles_ano_faixa
+  check (release_year is null or release_year between 1870 and 2100);
+
+alter table public.user_titles drop constraint if exists user_titles_nota_faixa;
+alter table public.user_titles add constraint user_titles_nota_faixa
+  check (vote_average between 0 and 10);
+
+-- Datas definidas sempre pelo banco: created_at ao criar (nunca muda depois);
+-- updated_at a cada alteração (trocar de lista conta como "recente").
 create or replace function public.user_titles_touch()
 returns trigger
 language plpgsql
 set search_path = ''
 as $$
 begin
+  if tg_op = 'INSERT' then
+    new.created_at := now();
+  else
+    new.created_at := old.created_at;
+  end if;
   new.updated_at := now();
   return new;
 end;
@@ -37,7 +65,7 @@ $$;
 
 drop trigger if exists user_titles_touch on public.user_titles;
 create trigger user_titles_touch
-  before update on public.user_titles
+  before insert or update on public.user_titles
   for each row execute function public.user_titles_touch();
 
 -- Segurança: cada pessoa só lê e altera as próprias linhas.

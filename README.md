@@ -24,7 +24,7 @@ O login e as listas "Quero assistir" / "Já assisti" usam o [Supabase](https://s
 
 1. Crie um projeto (região **South America (São Paulo)**).
 2. **Authentication → Sign In / Providers → Email**: desligue **Confirm email**.
-3. **SQL Editor → New query**: cole o arquivo `supabase/schema.sql` e clique em **Run** (cria a tabela e as regras de segurança).
+3. **SQL Editor → New query**: cole o arquivo `supabase/schema.sql` e clique em **Run** (cria a tabela e as regras de segurança). Sempre que esse arquivo mudar, rode-o de novo: ele não apaga dados.
 4. **Project Settings → API Keys**: copie o **Project URL** e a **Publishable key** para o `.env.local`:
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://....supabase.co
