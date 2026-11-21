@@ -19,6 +19,7 @@ export function loadCatalogPage(type: MediaType, filters: Filters, allProviderId
     genreId: effectiveGenreId(type, filters.genreId, filters.doramas),
     doramas: filters.doramas,
     minRating: filters.minRating,
+    sortByRating: filters.sort === 'rating',
     page: filters.page,
   })
 }

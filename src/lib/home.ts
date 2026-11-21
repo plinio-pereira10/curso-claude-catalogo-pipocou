@@ -17,7 +17,7 @@ export const MAX_FEATURED = 5
 
 /** Tem algum filtro na URL? Sem nenhum, a página mostra banner + fileiras; com algum, a grade. */
 export function hasActiveFilters(f: Omit<Filters, 'page'>): boolean {
-  return Boolean(f.providerId || f.genreId || f.minRating || f.q || f.doramas)
+  return Boolean(f.providerId || f.genreId || f.minRating || f.sort || f.q || f.doramas)
 }
 
 /**

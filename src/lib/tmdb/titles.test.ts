@@ -392,6 +392,34 @@ test('sem nota não envia vote_average.gte nem vote_count.gte', async () => {
   expect(url.searchParams.has('vote_count.gte')).toBe(false)
 })
 
+// ---- Ordem por nota ----
+
+test('ordem por nota usa vote_average.desc e 50 votos', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('movie', { providerIds: [8], doramas: false, sortByRating: true, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.get('sort_by')).toBe('vote_average.desc')
+  expect(url.searchParams.get('vote_count.gte')).toBe('50')
+  expect(url.searchParams.has('vote_average.gte')).toBe(false)
+})
+
+test('ordem por nota com nota 8+ usa 50 votos e vote_average.gte 8', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('tv', { providerIds: [8], doramas: true, minRating: 8, sortByRating: true, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.get('sort_by')).toBe('vote_average.desc')
+  expect(url.searchParams.get('vote_count.gte')).toBe('50')
+  expect(url.searchParams.get('vote_average.gte')).toBe('8')
+})
+
+test('sem a ordem continua por popularidade', async () => {
+  mockFetchJson({ page: 1, total_pages: 1, results: [] })
+  await discoverTitles('movie', { providerIds: [8], doramas: false, minRating: 7, page: 1 })
+  const url = lastFetchUrl()
+  expect(url.searchParams.get('sort_by')).toBe('popularity.desc')
+  expect(url.searchParams.get('vote_count.gte')).toBe('15')
+})
+
 // ---- Visual estilo streaming ----
 
 test('discoverTitles converte backdrop_path e overview', async () => {

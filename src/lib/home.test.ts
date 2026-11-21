@@ -26,6 +26,10 @@ beforeEach(() => {
   vi.mocked(unstable_rethrow).mockReset()
 })
 
+test('hasActiveFilters conta a ordem', () => {
+  expect(hasActiveFilters({ sort: 'rating', doramas: false })).toBe(true)
+})
+
 test('hasActiveFilters: só a lista sem nenhum filtro conta como tela inicial', () => {
   expect(hasActiveFilters({ doramas: false })).toBe(false)
   expect(hasActiveFilters({ doramas: false, providerId: 8 })).toBe(true)

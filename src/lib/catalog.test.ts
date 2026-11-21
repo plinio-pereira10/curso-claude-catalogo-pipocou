@@ -22,22 +22,34 @@ test('busca em séries usa searchTitles com tv', async () => {
 
 test('com serviço escolhido filtra só por ele', async () => {
   await loadCatalogPage('movie', { providerId: 8, genreId: 35, doramas: false, page: 2 }, [8, 119])
-  expect(discoverTitles).toHaveBeenCalledWith('movie', { providerIds: [8], genreId: 35, doramas: false, minRating: undefined, page: 2 })
+  expect(discoverTitles).toHaveBeenCalledWith('movie', { providerIds: [8], genreId: 35, doramas: false, minRating: undefined, sortByRating: false, page: 2 })
 })
 
 test('sem serviço escolhido usa todos os serviços dos botões', async () => {
   await loadCatalogPage('tv', { doramas: true, page: 1 }, [8, 119])
-  expect(discoverTitles).toHaveBeenCalledWith('tv', { providerIds: [8, 119], genreId: undefined, doramas: true, minRating: undefined, page: 1 })
+  expect(discoverTitles).toHaveBeenCalledWith('tv', { providerIds: [8, 119], genreId: undefined, doramas: true, minRating: undefined, sortByRating: false, page: 1 })
 })
 
 test('séries com Doramas e gênero excluído ignoram o gênero', async () => {
   await loadCatalogPage('tv', { genreId: 16, doramas: true, page: 1 }, [8])
-  expect(discoverTitles).toHaveBeenCalledWith('tv', { providerIds: [8], genreId: undefined, doramas: true, minRating: undefined, page: 1 })
+  expect(discoverTitles).toHaveBeenCalledWith('tv', { providerIds: [8], genreId: undefined, doramas: true, minRating: undefined, sortByRating: false, page: 1 })
 })
 
 test('gênero permitido com Doramas é mantido', async () => {
   await loadCatalogPage('tv', { genreId: 18, doramas: true, page: 1 }, [8])
-  expect(discoverTitles).toHaveBeenCalledWith('tv', { providerIds: [8], genreId: 18, doramas: true, minRating: undefined, page: 1 })
+  expect(discoverTitles).toHaveBeenCalledWith('tv', { providerIds: [8], genreId: 18, doramas: true, minRating: undefined, sortByRating: false, page: 1 })
+})
+
+test('catálogo repassa a ordem', async () => {
+  await loadCatalogPage('tv', { sort: 'rating', doramas: true, page: 2 }, [8])
+  expect(discoverTitles).toHaveBeenCalledWith('tv', {
+    providerIds: [8],
+    genreId: undefined,
+    doramas: true,
+    minRating: undefined,
+    sortByRating: true,
+    page: 2,
+  })
 })
 
 test('nota é repassada ao discover', async () => {
@@ -47,6 +59,7 @@ test('nota é repassada ao discover', async () => {
     genreId: undefined,
     doramas: false,
     minRating: 8,
+    sortByRating: false,
     page: 1,
   })
 })

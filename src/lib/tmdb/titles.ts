@@ -2,7 +2,7 @@ import { cacheLife } from 'next/cache'
 import { tmdbFetch } from './client'
 import { DORAMA_COUNTRIES, doramaExcludedGenres } from '../doramas'
 import type { MediaType } from '../media'
-import { MIN_VOTE_COUNT, type MinRating } from '../rating'
+import { MIN_VOTE_COUNT, SORT_MIN_VOTE_COUNT, type MinRating } from '../rating'
 import type { Genre, Provider, TitleDetails, TitlePage, TitleSummary, WatchProviders } from './types'
 
 /** O TMDB não deixa pedir além da página 500. */
@@ -79,6 +79,15 @@ function genreParams(type: MediaType, genreId: number | undefined) {
   return { with_genres: genreId, with_keywords: undefined }
 }
 
+/**
+ * Mínimo de votos para o pedido: 15 com nota escolhida, 50 na ordem por nota (vale o maior).
+ * Sem nota nem ordem por nota, nenhum mínimo.
+ */
+function minVotes(opts: { minRating?: MinRating; sortByRating?: boolean }): number | undefined {
+  if (opts.sortByRating) return Math.max(SORT_MIN_VOTE_COUNT, opts.minRating ? MIN_VOTE_COUNT : 0)
+  return opts.minRating ? MIN_VOTE_COUNT : undefined
+}
+
 // ---- Funções usadas pelo site ----
 
 /**
@@ -89,7 +98,15 @@ function genreParams(type: MediaType, genreId: number | undefined) {
  */
 export async function discoverTitles(
   type: MediaType,
-  opts: { providerIds: number[]; genreId?: number; doramas: boolean; minRating?: MinRating; page: number },
+  opts: {
+    providerIds: number[]
+    genreId?: number
+    doramas: boolean
+    minRating?: MinRating
+    /** Ordem "Mais bem avaliados" (senão, por popularidade). */
+    sortByRating?: boolean
+    page: number
+  },
 ): Promise<TitlePage> {
   const raw = await tmdbFetch<RawPage>(`/discover/${type}`, {
     watch_region: 'BR',
@@ -100,8 +117,8 @@ export async function discoverTitles(
     without_genres: opts.doramas ? doramaExcludedGenres(type).join(',') : undefined,
     // nota mínima: só títulos com essa nota e com votos suficientes para ela ser confiável
     'vote_average.gte': opts.minRating,
-    'vote_count.gte': opts.minRating ? MIN_VOTE_COUNT : undefined,
-    sort_by: 'popularity.desc',
+    'vote_count.gte': minVotes(opts),
+    sort_by: opts.sortByRating ? 'vote_average.desc' : 'popularity.desc',
     page: opts.page,
   })
   return toTitlePage(raw)

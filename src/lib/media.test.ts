@@ -31,6 +31,10 @@ test('textos por tipo', () => {
   expect(MEDIA.tv.label).toBe('Séries')
 })
 
+test('switchTabHref mantém a ordem', () => {
+  expect(switchTabHref('tv', { sort: 'rating', doramas: false })).toBe('/series?ordem=nota')
+})
+
 test('switchTabHref mantém a nota', () => {
   expect(switchTabHref('tv', { providerId: 8, minRating: 7, doramas: true })).toBe('/series?provider=8&nota=7&doramas=1')
 })
