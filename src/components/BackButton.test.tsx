@@ -57,6 +57,26 @@ test('BackButton atualiza o texto quando a visita é registrada depois de aparec
   expect(screen.getByRole('button', { name: 'Voltar para Séries' })).toBeInTheDocument()
 })
 
+test('backLabel depois do voltar do navegador diz o destino certo', async () => {
+  const { backLabel, recordVisit, getHistorySnapshot } = await load()
+  // Filmes → filme → aba Séries → voltar do navegador (de volta ao filme): o clique leva a Filmes
+  recordVisit('/')
+  recordVisit('/filme/7')
+  recordVisit('/series')
+  recordVisit('/filme/7')
+  expect(backLabel('movie', getHistorySnapshot())).toBe('Voltar para Filmes')
+})
+
+test('backLabel depois do voltar do navegador vindo de Minhas listas', async () => {
+  const { backLabel, recordVisit, getHistorySnapshot } = await load()
+  // Séries → série → Minhas listas → voltar do navegador (de volta à série): o clique leva a Séries
+  recordVisit('/series')
+  recordVisit('/serie/5')
+  recordVisit('/minhas-listas')
+  recordVisit('/serie/5')
+  expect(backLabel('tv', getHistorySnapshot())).toBe('Voltar para Séries')
+})
+
 // ---- Para onde o clique leva ----
 
 test('BackButton volta quando já passou por outra página do site', async () => {

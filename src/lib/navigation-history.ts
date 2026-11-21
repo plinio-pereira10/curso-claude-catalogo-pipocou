@@ -1,31 +1,31 @@
 import { MEDIA, type MediaType } from './media'
 
 /**
- * Guarda as páginas do site visitadas nesta aba (some ao recarregar a página).
- * Serve para o botão "Voltar" saber se pode voltar sem sair do site e para onde vai.
- * (O `document.referrer` não serve: no Next.js, clicar num link não recarrega a página.)
+ * Guarda o caminho de páginas do site nesta aba (some ao recarregar a página), como uma pilha:
+ * entrar numa página empilha; voltar para a página anterior (pelo botão do navegador ou pelo
+ * "Voltar") desempilha. Serve para o botão "Voltar" saber se pode voltar sem sair do site e
+ * dizer para onde vai. (O `document.referrer` não serve: no Next.js, clicar num link não
+ * recarrega a página.)
  */
 export type HistorySnapshot = {
-  visits: number
-  firstPath: string | null
-  currentPath: string | null
-  previousPath: string | null
+  /** Da primeira página aberta (início) até a atual (fim). */
+  stack: readonly string[]
 }
 
-const EMPTY: HistorySnapshot = { visits: 0, firstPath: null, currentPath: null, previousPath: null }
+const EMPTY: HistorySnapshot = { stack: [] }
 
 let snapshot: HistorySnapshot = EMPTY
 const listeners = new Set<() => void>()
 
-/** Registra uma visita; repetir a mesma página não conta. Avisa quem está acompanhando. */
+/**
+ * Registra a página atual. Repetir a mesma página não conta. Chegar na página anterior da
+ * pilha é tratado como "voltar" (desempilha); qualquer outra página é empilhada.
+ */
 export function recordVisit(path: string) {
-  if (path === snapshot.currentPath) return
-  snapshot = {
-    visits: snapshot.visits + 1,
-    firstPath: snapshot.firstPath ?? path,
-    currentPath: path,
-    previousPath: snapshot.currentPath,
-  }
+  const { stack } = snapshot
+  if (path === stack.at(-1)) return
+  const wentBack = stack.length >= 2 && path === stack.at(-2)
+  snapshot = { stack: wentBack ? stack.slice(0, -1) : [...stack, path] }
   for (const listener of listeners) listener()
 }
 
@@ -45,13 +45,12 @@ export function subscribeHistory(listener: () => void): () => void {
 }
 
 /**
- * Dá para voltar sem sair do site?
- * Não, se esta é a primeira página aberta na aba — inclusive quando a pessoa voltou até ela
- * pelo botão do navegador (antes dela no histórico só existe o que veio de fora).
- * Limitação aceita: chegar de novo à primeira página por um link do site também leva à lista.
+ * Dá para voltar sem sair do site? Só se houver uma página do site antes da atual na pilha.
+ * Na primeira página aberta (inclusive depois de voltar até ela pelo navegador), não: antes
+ * dela só existe o que veio de fora.
  */
 function canGoBack(s: HistorySnapshot): boolean {
-  return s.visits > 1 && s.currentPath !== s.firstPath
+  return s.stack.length > 1
 }
 
 export function hasInAppHistory(): boolean {
@@ -66,11 +65,11 @@ const DESTINATIONS: Record<string, string> = {
 }
 
 /**
- * Texto do botão "Voltar": diz para onde ele leva.
+ * Texto do botão "Voltar": diz para onde ele leva (a página anterior na pilha).
  * Sem página anterior no site → a lista do tipo do título (é para lá que o botão vai).
  */
 export function backLabel(type: MediaType, s: HistorySnapshot): string {
   if (!canGoBack(s)) return `Voltar para ${MEDIA[type].label}`
-  const name = s.previousPath ? DESTINATIONS[s.previousPath] : undefined
+  const name = DESTINATIONS[s.stack.at(-2) ?? '']
   return name ? `Voltar para ${name}` : 'Voltar'
 }
