@@ -4,13 +4,19 @@ Design: `docs/superpowers/specs/2026-11-21-espaco-banner-design.md`
 
 ## Tarefa 1 — selo do streaming na linha da nota (TDD)
 
-- Teste em `src/components/HeroBanner.test.tsx`: o nome do streaming aparece em texto na linha da nota, junto de nota e ano; não existe imagem com o nome do streaming (logo decorativo).
-- Rodar e ver falhar.
-- Em `src/components/HeroBanner.tsx`: remover o `<Image>` do provider do topo; na linha da nota (`<p className="flex items-center gap-4 ...">`) adicionar primeiro `<span className="flex items-center gap-2"><Image ... alt="" className="size-5 rounded" />{provider.name}</span>`.
-- Rodar e ver passar.
+- Teste em `src/components/HeroBanner.test.tsx`: o nome do streaming aparece em texto na linha da nota, junto de nota e ano; o logo continua lá, mas sem nome para o leitor de tela (decorativo).
+- Em `src/components/HeroBanner.tsx`: tirar o logo do topo do conteúdo e colocá-lo, com o nome, no começo da linha da nota.
 
-## Tarefa 2 — margem no topo e altura mínima
+## Tarefa 2 — menu dentro do banner, com a altura real (TDD)
 
-- Section: trocar `h-[75vh] min-h-[34rem] sm:h-[65vh] sm:min-h-[28rem] lg:h-[70vh]` por `flex flex-col min-h-[max(75vh,34rem)] sm:min-h-[max(65vh,28rem)] lg:min-h-[max(70vh,28rem)]`.
-- Wrapper do conteúdo: `h-full` vira `flex-1`, e entra `pt-36 sm:pt-28`.
-- Só visual (classes); conferido no navegador. Rodar todos os testes, lint e build.
+(A primeira versão usava `pt-36 sm:pt-28` fixos; o revisor mostrou que não cobria a linha dos streamings no menu. Trocado por esta.)
+
+- Testes: `TopBar variant="overlay"` é `absolute` e `variant="banner"` não; o `header` do `HeroBanner` fica na parte de fora do banner, antes do conteúdo e fora da região "Destaques".
+- `TopBar`: prop `variant: 'solid' | 'overlay' | 'banner'` (detalhes usa `overlay`; tela inicial usa `banner`).
+- `HeroBanner`: parte de fora (`min-h-[max(..)]`, imagens, sombras, `header`) + `<section>` do carrossel (`flex-1`, conteúdo, bolinhas, pausa por mouse/foco).
+- `CatalogPage`: com destaques, passa o `TopBar variant="banner"` como `header`; sem destaques, `TopBar` normal.
+
+## Tarefa 3 — mesma altura para todos os destaques
+
+- Título com altura fixa (`h-26 sm:h-28`), título em texto `line-clamp-2`; sinopse sempre com 3 linhas (`min-h-[3lh]`, `aria-hidden` quando vazia).
+- Rodar todos os testes, lint, tipos e build; conferir no navegador.

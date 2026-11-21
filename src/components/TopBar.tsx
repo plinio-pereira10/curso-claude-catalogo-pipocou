@@ -22,7 +22,6 @@ type Props = {
   filters?: Omit<Filters, 'page'>
 }
 
-/** Menu do topo: logo Pipocou · Filmes | Séries · logos dos streamings · busca · conta (Minhas listas / Entrar). */
 const TRANSPARENT = 'z-20 bg-linear-to-b from-noite/90 via-noite/50 to-transparent pb-10'
 const POSITION = {
   solid: 'border-b border-linha bg-noite pb-4',
@@ -30,6 +29,7 @@ const POSITION = {
   banner: `relative ${TRANSPARENT}`,
 }
 
+/** Menu do topo: logo Pipocou · Filmes | Séries · logos dos streamings · busca · conta (Minhas listas / Entrar). */
 export function TopBar({ type, variant = 'solid', providers, filters }: Props) {
   const position = POSITION[variant]
 

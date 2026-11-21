@@ -86,7 +86,8 @@ export function HeroBanner({
         <div className="max-w-xl space-y-4">
           {/* título com altura fixa e sinopse sempre com 3 linhas: todos os destaques têm a mesma altura,
               então a página não "pula" quando o banner troca sozinho */}
-          <h1 className="flex h-24 items-end sm:h-28">
+          {/* h-26 = 2 linhas de text-5xl com leading 1.05 (≈101 px) */}
+          <h1 className="flex h-26 items-end sm:h-28">
             {logoPath ? (
               <span className="relative block h-full w-[min(26rem,80vw)]">
                 <Image
