@@ -63,7 +63,7 @@ async function Home({ type, filters }: { type: MediaType; filters: CurrentFilter
         <HeroBanner
           type={type}
           items={home.featured}
-          header={<TopBar type={type} overlay providers={providers} filters={filters} />}
+          header={<TopBar type={type} variant="banner" providers={providers} filters={filters} />}
         />
       ) : (
         <TopBar type={type} providers={providers} filters={filters} />

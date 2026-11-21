@@ -64,11 +64,16 @@ test('o streaming aparece pelo nome na linha da nota, com o logo só decorativo'
   expect(line?.querySelector('img')).not.toBeNull()
 })
 
-test('o menu do topo fica dentro do banner, antes do conteúdo', () => {
-  render(<HeroBanner type="movie" items={[item(1)]} header={<nav aria-label="Menu" />} />)
+test('o menu do topo fica no banner, antes do conteúdo, mas fora do carrossel', () => {
+  const { container } = render(
+    <HeroBanner type="movie" items={[item(1)]} header={<nav aria-label="Menu" />} />,
+  )
   const region = screen.getByRole('region', { name: 'Destaques' })
   const menu = screen.getByRole('navigation', { name: 'Menu' })
-  expect(region).toContainElement(menu)
+  // por cima da mesma imagem de fundo...
+  expect(container.firstElementChild).toContainElement(menu)
+  // ...mas o leitor de tela não anuncia o menu como parte de "Destaques, carrossel"
+  expect(region).not.toContainElement(menu)
   // o menu vem antes do botão no documento (empurra o conteúdo para baixo)
   const link = screen.getByRole('link', { name: 'Ver detalhes' })
   expect(menu.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()

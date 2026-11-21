@@ -11,19 +11,27 @@ import { SearchBox } from './SearchBox'
 
 type Props = {
   type: MediaType
-  /** Dentro do banner, por cima da imagem (fundo transparente). Senão, fundo azul-noite. */
-  overlay?: boolean
+  /**
+   * - `solid` (padrão): fundo azul-noite.
+   * - `overlay`: flutua por cima da imagem de fundo (página de detalhes).
+   * - `banner`: dentro do banner da tela inicial, no fluxo normal: a altura real empurra o conteúdo.
+   */
+  variant?: 'solid' | 'overlay' | 'banner'
   /** Nas listas: os streamings viram botões de filtro no menu. */
   providers?: Provider[]
   filters?: Omit<Filters, 'page'>
 }
 
 /** Menu do topo: logo Pipocou · Filmes | Séries · logos dos streamings · busca · conta (Minhas listas / Entrar). */
-export function TopBar({ type, overlay = false, providers, filters }: Props) {
-  const position = overlay
-    ? // no fluxo normal (não absolute): a altura real do menu empurra o conteúdo do banner para baixo
-      'relative z-20 bg-linear-to-b from-noite/90 via-noite/50 to-transparent pb-10'
-    : 'border-b border-linha bg-noite pb-4'
+const TRANSPARENT = 'z-20 bg-linear-to-b from-noite/90 via-noite/50 to-transparent pb-10'
+const POSITION = {
+  solid: 'border-b border-linha bg-noite pb-4',
+  overlay: `absolute inset-x-0 top-0 ${TRANSPARENT}`,
+  banner: `relative ${TRANSPARENT}`,
+}
+
+export function TopBar({ type, variant = 'solid', providers, filters }: Props) {
+  const position = POSITION[variant]
 
   return (
     <header className={`${position} ${GUTTER} pt-4`}>

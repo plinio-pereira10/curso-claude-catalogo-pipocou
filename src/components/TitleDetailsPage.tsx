@@ -81,7 +81,7 @@ async function TitleDetailsView({ type, params }: { type: MediaType; params: Par
   return (
     <>
       {/* Com imagem de cena, o menu fica por cima dela. */}
-      <TopBar type={type} overlay={Boolean(backdrop)} />
+      <TopBar type={type} variant={backdrop ? 'overlay' : 'solid'} />
 
       {backdrop && (
         <div className="relative h-[45vh] min-h-72 lg:h-[60vh]">

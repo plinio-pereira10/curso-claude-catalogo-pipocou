@@ -47,19 +47,9 @@ export function HeroBanner({
   const { title, provider, logoPath } = current
 
   return (
-    <section
-      aria-roledescription="carrossel"
-      aria-label="Destaques"
-      // altura mínima (não fixa): em tela baixa o banner cresce em vez de o conteúdo subir até o menu
-      className="relative flex min-h-[max(75vh,34rem)] flex-col overflow-hidden sm:min-h-[max(65vh,28rem)] lg:min-h-[max(70vh,28rem)]"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setFocusInside(true)}
-      onBlur={(e) => {
-        // só sai do "foco dentro" quando o foco vai para fora do banner
-        if (!e.currentTarget.contains(e.relatedTarget)) setFocusInside(false)
-      }}
-    >
+    // Parte de fora: imagem de fundo + menu do topo. Altura mínima (não fixa): em tela baixa
+    // o banner cresce em vez de o conteúdo subir até o menu.
+    <div className="relative flex min-h-[max(75vh,34rem)] flex-col overflow-hidden sm:min-h-[max(65vh,28rem)] lg:min-h-[max(70vh,28rem)]">
       {/* Todas as imagens ficam empilhadas; só a do destaque atual aparece (troca com fade). */}
       {items.map((item, i) => (
         <Image
@@ -79,7 +69,20 @@ export function HeroBanner({
 
       {header}
 
-      <div className={`relative z-10 flex flex-1 flex-col justify-end pt-4 pb-16 lg:pb-20 ${GUTTER}`}>
+      {/* Parte de dentro: o carrossel. O menu fica fora dele, para o leitor de tela não o anunciar
+          como parte de "Destaques" (e mexer no menu não pausa a troca). */}
+      <section
+        aria-roledescription="carrossel"
+        aria-label="Destaques"
+        className={`relative z-10 flex flex-1 flex-col justify-end pt-4 pb-16 lg:pb-20 ${GUTTER}`}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onFocus={() => setFocusInside(true)}
+        onBlur={(e) => {
+          // só sai do "foco dentro" quando o foco vai para fora do carrossel
+          if (!e.currentTarget.contains(e.relatedTarget)) setFocusInside(false)
+        }}
+      >
         <div className="max-w-xl space-y-4">
           {/* título com altura fixa e sinopse sempre com 3 linhas: todos os destaques têm a mesma altura,
               então a página não "pula" quando o banner troca sozinho */}
@@ -95,7 +98,8 @@ export function HeroBanner({
                 />
               </span>
             ) : (
-              <span className="line-clamp-2 text-5xl leading-none font-extrabold tracking-tight text-balance">
+              // leading um pouco maior que 1: o corte das 2 linhas não come a perna do "g", "j", "p", "y"
+              <span className="line-clamp-2 text-5xl leading-[1.05] font-extrabold tracking-tight text-balance">
                 {title.title}
               </span>
             )}
@@ -118,7 +122,10 @@ export function HeroBanner({
             {title.releaseYear && <span className="text-suave">{title.releaseYear}</span>}
           </p>
 
-          <p className="line-clamp-3 min-h-[3lh] leading-relaxed text-texto/85">{title.overview}</p>
+          {/* sem sinopse, o parágrafo vazio só guarda o espaço (o leitor de tela pula) */}
+          <p aria-hidden={!title.overview || undefined} className="line-clamp-3 min-h-[3lh] leading-relaxed text-texto/85">
+            {title.overview}
+          </p>
 
           <Link
             href={detailPath(type, title.id)}
@@ -127,29 +134,29 @@ export function HeroBanner({
             Ver detalhes
           </Link>
         </div>
-      </div>
 
-      {count > 1 && (
-        <div className="absolute inset-x-0 bottom-5 z-10 flex justify-center gap-1">
-          {items.map((item, i) => {
-            const active = item === current
-            return (
-              <button
-                key={item.title.id}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`Destaque ${i + 1}`}
-                aria-current={active ? 'true' : undefined}
-                className={`rounded-full p-1.5 ${FOCUS_RING}`}
-              >
-                <span
-                  className={`block h-2 rounded-full motion-safe:transition-all ${active ? 'w-6 bg-texto' : 'w-2 bg-texto/40'}`}
-                />
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </section>
+        {count > 1 && (
+          <div className="absolute inset-x-0 bottom-5 flex justify-center gap-1">
+            {items.map((item, i) => {
+              const active = item === current
+              return (
+                <button
+                  key={item.title.id}
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-label={`Destaque ${i + 1}`}
+                  aria-current={active ? 'true' : undefined}
+                  className={`rounded-full p-1.5 ${FOCUS_RING}`}
+                >
+                  <span
+                    className={`block h-2 rounded-full motion-safe:transition-all ${active ? 'w-6 bg-texto' : 'w-2 bg-texto/40'}`}
+                  />
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </section>
+    </div>
   )
 }

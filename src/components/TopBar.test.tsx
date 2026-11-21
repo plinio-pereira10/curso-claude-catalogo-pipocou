@@ -27,6 +27,16 @@ test('TopBar com streamings mostra os logos como filtro', () => {
   expect(screen.getByRole('button', { name: 'Netflix' })).toBeInTheDocument()
 })
 
+test('modos do menu: "overlay" flutua sobre a imagem; "banner" fica no fluxo, dentro do banner', () => {
+  const { unmount } = render(<TopBar type="movie" variant="overlay" />)
+  // página de detalhes: o menu flutua por cima da imagem de fundo
+  expect(screen.getByRole('banner')).toHaveClass('absolute')
+  unmount()
+  render(<TopBar type="movie" variant="banner" />)
+  // tela inicial: o menu ocupa a altura real e empurra o conteúdo do banner
+  expect(screen.getByRole('banner')).not.toHaveClass('absolute')
+})
+
 test('TopBar mostra o logo Pipocou, sem o nome antigo', () => {
   render(<TopBar type="movie" />)
   expect(screen.getByRole('link', { name: 'Pipocou' })).toHaveAttribute('href', '/')
