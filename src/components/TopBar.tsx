@@ -52,14 +52,18 @@ export function TopBar({ type, variant = 'solid', providers, filters }: Props) {
           </>
         )}
 
-        <div className="w-full sm:ml-auto sm:w-auto">
+        {/* No celular a busca ocupa a linha toda e desce (order-1) para a conta ficar na linha do logo. */}
+        <div className="order-1 w-full sm:order-none sm:ml-auto sm:w-auto">
           <SearchBox key={filters?.q ?? ''} type={type} initialQuery={filters?.q} />
         </div>
 
-        {/* Lê o cookie de sessão; enquanto isso, não mostra nada (evita piscar "Entrar" para quem está logado). */}
-        <Suspense fallback={null}>
-          <AccountNav />
-        </Suspense>
+        {/* No celular, à direita na linha do logo (ml-auto); a partir de sm, depois da busca. */}
+        <div className="ml-auto sm:ml-0">
+          {/* Lê o cookie de sessão; enquanto isso, não mostra nada (evita piscar "Entrar" para quem está logado). */}
+          <Suspense fallback={null}>
+            <AccountNav />
+          </Suspense>
+        </div>
       </div>
     </header>
   )
