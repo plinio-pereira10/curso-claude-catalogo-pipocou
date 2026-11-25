@@ -5,6 +5,7 @@ import { useActionState } from 'react'
 import { signIn, signUp, type AuthState } from '@/app/actions/auth'
 import { MIN_PASSWORD_LENGTH } from '@/lib/auth-errors'
 import { FOCUS_RING } from '@/lib/ui'
+import { PasswordInput } from './PasswordInput'
 
 type Mode = 'entrar' | 'criar-conta'
 
@@ -50,13 +51,11 @@ export function AuthForm({ mode, voltar }: { mode: Mode; voltar: string }) {
 
       <label className="block space-y-1.5">
         <span className="text-sm text-suave">Senha</span>
-        <input
+        <PasswordInput
           name="password"
-          type="password"
           autoComplete={mode === 'entrar' ? 'current-password' : 'new-password'}
           minLength={MIN_PASSWORD_LENGTH}
           required
-          className={INPUT}
         />
         {mode === 'criar-conta' && (
           <span className="block text-xs text-suave">Use pelo menos {MIN_PASSWORD_LENGTH} caracteres.</span>

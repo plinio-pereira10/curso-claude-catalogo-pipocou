@@ -5,6 +5,7 @@ import { useActionState } from 'react'
 import { requestPasswordReset, updatePassword, type AuthState, type ResetRequestState } from '@/app/actions/auth'
 import { AUTH_MESSAGES, MIN_PASSWORD_LENGTH } from '@/lib/auth-errors'
 import { FOCUS_RING } from '@/lib/ui'
+import { PasswordInput } from './PasswordInput'
 
 const INPUT = `w-full rounded-lg border border-linha bg-superficie px-4 py-2.5 text-base ${FOCUS_RING}`
 const BUTTON = `w-full rounded-full bg-texto px-4 py-2.5 font-semibold text-noite disabled:opacity-60 ${FOCUS_RING}`
@@ -66,14 +67,12 @@ export function NewPasswordForm() {
       <div className="space-y-1.5">
         <label className="block space-y-1.5">
           <span className="text-sm text-suave">Nova senha</span>
-          <input
+          <PasswordInput
             name="password"
-            type="password"
             autoComplete="new-password"
             minLength={MIN_PASSWORD_LENGTH}
             required
             aria-describedby="dica-nova-senha"
-            className={INPUT}
           />
         </label>
         <p id="dica-nova-senha" className="text-xs text-suave">
