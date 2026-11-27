@@ -1,4 +1,4 @@
-import { currentFilters, parseFilters, filtersToQuery } from './filters'
+import { activeFilterCount, currentFilters, parseFilters, filtersToQuery } from './filters'
 
 test('lê valores válidos', () => {
   expect(parseFilters({ provider: '8', genre: '35', q: ' duna ', page: '3' })).toEqual({
@@ -74,4 +74,10 @@ test('filtersToQuery escreve ordem na posição certa', () => {
   expect(filtersToQuery({ providerId: 8, genreId: 35, minRating: 8, sort: 'rating', doramas: true })).toBe(
     'provider=8&genre=35&nota=8&ordem=nota&doramas=1',
   )
+})
+
+test('activeFilterCount conta só Gênero, Nota e Ordem', () => {
+  expect(activeFilterCount({})).toBe(0)
+  expect(activeFilterCount({ genreId: 35 })).toBe(1)
+  expect(activeFilterCount({ genreId: 35, minRating: 7, sort: 'rating' })).toBe(3)
 })

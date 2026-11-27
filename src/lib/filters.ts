@@ -68,6 +68,18 @@ export function filtersToQuery(f: Omit<Filters, 'page' | 'doramas'> & { page?: n
 }
 
 /**
+ * Quantos filtros estão ativos no botão "Filtros (n)": Gênero, Nota e Ordem.
+ * Doramas, streaming e busca não entram na conta.
+ */
+export function activeFilterCount(f: Pick<Filters, 'genreId' | 'minRating' | 'sort'>): number {
+  let count = 0
+  if (f.genreId) count++
+  if (f.minRating) count++
+  if (f.sort === 'rating') count++
+  return count
+}
+
+/**
  * Todos os filtros escolhidos, sem a página (o que as telas e os botões usam).
  * Copia o objeto inteiro: um filtro novo nunca é esquecido.
  */
