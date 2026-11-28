@@ -36,6 +36,13 @@ body {
   font-family: var(--font-figtree), system-ui, sans-serif;
 }
 
+/* Botões mostram a mãozinha, como os links. Botões desabilitados continuam com a seta (ver disabled:cursor-not-allowed). */
+@layer base {
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 /* O Edge põe um olho próprio nos campos de senha; o PasswordInput já tem o nosso. */
 input::-ms-reveal {
   display: none;
