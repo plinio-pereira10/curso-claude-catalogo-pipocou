@@ -30,3 +30,16 @@ test('SearchToggle com busca feita começa aberto mostrando o texto', () => {
   expect(screen.getByRole('button', { name: 'Abrir busca' })).toHaveAttribute('aria-expanded', 'true')
   expect(screen.getByRole('searchbox')).toHaveValue('duna')
 })
+
+test('SearchToggle devolve o foco à lupa ao fechar com o X', async () => {
+  render(<SearchToggle type="movie" />)
+  await userEvent.click(screen.getByRole('button', { name: 'Abrir busca' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Fechar busca' }))
+  expect(screen.getByRole('button', { name: 'Abrir busca' })).toHaveFocus()
+})
+
+test('SearchToggle já aberto: a lupa leva o cursor ao campo', async () => {
+  render(<SearchToggle type="movie" initialQuery="duna" />)
+  await userEvent.click(screen.getByRole('button', { name: 'Abrir busca' }))
+  expect(screen.getByRole('searchbox')).toHaveFocus()
+})

@@ -21,17 +21,19 @@ type Props = {
 export function FiltersPanel({ count, disabled, children }: Props) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
+  // durante uma busca o painel fecha (os filtros ficam desligados)
+  const expanded = open && !disabled
 
   return (
     <>
       <button
         type="button"
-        aria-expanded={open}
+        aria-expanded={expanded}
         aria-controls={panelId}
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent sm:hidden ${
-          open ? 'border-texto/40 bg-white/10' : 'border-linha'
+          expanded ? 'border-texto/40 bg-white/10' : 'border-linha'
         } ${FOCUS_RING}`}
       >
         <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -44,7 +46,7 @@ export function FiltersPanel({ count, disabled, children }: Props) {
 
       <div
         id={panelId}
-        className={`${open ? 'flex' : 'hidden'} order-last w-full flex-col gap-3 rounded-2xl border border-linha bg-superficie/60 p-4 sm:contents sm:[&_label]:w-auto sm:[&_label]:justify-start sm:[&_select]:w-auto [&_label]:w-full [&_label]:justify-between [&_select]:h-10 [&_select]:w-44 sm:[&_select]:h-auto`}
+        className={`${expanded ? 'flex' : 'hidden'} order-last w-full flex-col gap-3 rounded-2xl border border-linha bg-superficie/60 p-4 sm:contents sm:[&_label]:w-auto sm:[&_label]:justify-start sm:[&_select]:w-auto [&_label]:w-full [&_label]:justify-between [&_select]:h-10 [&_select]:w-44 sm:[&_select]:h-auto`}
       >
         {children}
       </div>

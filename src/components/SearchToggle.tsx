@@ -17,6 +17,7 @@ export function SearchToggle({ type, initialQuery = '' }: { type: MediaType; ini
   const [open, setOpen] = useState(initialQuery !== '')
   const rowId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
+  const lupaRef = useRef<HTMLButtonElement>(null)
   // só leva o cursor ao campo quando o usuário abre pelo botão (não na abertura inicial)
   const focusOnOpen = useRef(false)
 
@@ -28,13 +29,25 @@ export function SearchToggle({ type, initialQuery = '' }: { type: MediaType; ini
   }, [open])
 
   function openSearch() {
+    // já aberta (ex.: com ?q=): só leva o cursor ao campo
+    if (open) {
+      inputRef.current?.focus()
+      return
+    }
     focusOnOpen.current = true
     setOpen(true)
+  }
+
+  function closeSearch() {
+    setOpen(false)
+    // o X some junto com a linha; o foco volta para a lupa
+    lupaRef.current?.focus()
   }
 
   return (
     <>
       <button
+        ref={lupaRef}
         type="button"
         aria-label="Abrir busca"
         aria-expanded={open}
@@ -59,7 +72,7 @@ export function SearchToggle({ type, initialQuery = '' }: { type: MediaType; ini
         <button
           type="button"
           aria-label="Fechar busca"
-          onClick={() => setOpen(false)}
+          onClick={closeSearch}
           className={ROUND_BUTTON}
         >
           <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

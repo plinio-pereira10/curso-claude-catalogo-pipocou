@@ -42,3 +42,22 @@ test('FiltersPanel desligado durante a busca', () => {
   )
   expect(screen.getByRole('button', { name: 'Filtros' })).toBeDisabled()
 })
+
+test('FiltersPanel fecha o painel quando uma busca começa', async () => {
+  const { rerender } = render(
+    <FiltersPanel count={0} disabled={false}>
+      <p>selects</p>
+    </FiltersPanel>,
+  )
+  const botao = screen.getByRole('button', { name: 'Filtros' })
+  const painel = document.getElementById(botao.getAttribute('aria-controls')!)!
+  await userEvent.click(botao)
+  expect(painel).not.toHaveClass('hidden')
+  rerender(
+    <FiltersPanel count={0} disabled>
+      <p>selects</p>
+    </FiltersPanel>,
+  )
+  expect(painel).toHaveClass('hidden')
+  expect(botao).toHaveAttribute('aria-expanded', 'false')
+})

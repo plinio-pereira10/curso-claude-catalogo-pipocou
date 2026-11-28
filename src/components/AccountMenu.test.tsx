@@ -35,3 +35,19 @@ test('AccountMenu fecha com Esc, com clique fora e ao escolher uma opção', asy
   await userEvent.click(screen.getByRole('link', { name: 'Minhas listas' }))
   expect(screen.queryByRole('link', { name: 'Minhas listas' })).toBeNull()
 })
+
+test('AccountMenu devolve o foco ao círculo ao fechar com Esc', async () => {
+  const botao = abrir()
+  await userEvent.click(botao)
+  screen.getByRole('link', { name: 'Minhas listas' }).focus()
+  await userEvent.keyboard('{Escape}')
+  expect(botao).toHaveFocus()
+})
+
+test('AccountMenu aponta o botão para o menu (aria-controls) quando aberto', async () => {
+  const botao = abrir()
+  await userEvent.click(botao)
+  const menu = document.getElementById(botao.getAttribute('aria-controls') ?? '')
+  expect(menu).not.toBeNull()
+  expect(menu).toContainElement(screen.getByRole('link', { name: 'Minhas listas' }))
+})
