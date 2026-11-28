@@ -1,8 +1,9 @@
 import { visibleGenres } from '@/lib/doramas'
-import type { Filters } from '@/lib/filters'
+import { activeFilterCount, type Filters } from '@/lib/filters'
 import { MEDIA, type MediaType } from '@/lib/media'
 import type { Genre } from '@/lib/tmdb/types'
 import { DoramasToggle } from './DoramasToggle'
+import { FiltersPanel } from './FiltersPanel'
 import { GenreSelect } from './GenreSelect'
 import { RatingSelect } from './RatingSelect'
 import { SortSelect } from './SortSelect'
@@ -20,14 +21,16 @@ export function FilterBar({ type, genres, filters }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-3">
-        <GenreSelect
-          type={type}
-          genres={visibleGenres(genres, type, filters.doramas)}
-          filters={filters}
-          disabled={searching}
-        />
-        <RatingSelect type={type} filters={filters} disabled={searching} />
-        <SortSelect type={type} filters={filters} disabled={searching} />
+        <FiltersPanel count={activeFilterCount(filters)} disabled={searching}>
+          <GenreSelect
+            type={type}
+            genres={visibleGenres(genres, type, filters.doramas)}
+            filters={filters}
+            disabled={searching}
+          />
+          <RatingSelect type={type} filters={filters} disabled={searching} />
+          <SortSelect type={type} filters={filters} disabled={searching} />
+        </FiltersPanel>
         <DoramasToggle type={type} filters={filters} disabled={searching} />
       </div>
       {searching && <p className="text-sm text-suave">{MEDIA[type].searchNote}</p>}
