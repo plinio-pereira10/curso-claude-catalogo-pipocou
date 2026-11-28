@@ -24,14 +24,14 @@ export function Logo() {
     <Link
       href="/"
       aria-label={SITE_NAME}
-      className={`inline-block rounded-md px-1 pt-2.5 pb-1 font-logo text-[26px] leading-none font-bold tracking-tight ${FOCUS_RING}`}
+      className={`inline-block rounded-md px-1 pt-2.5 pb-1 font-logo text-[22px] leading-none sm:text-[26px] font-bold tracking-tight ${FOCUS_RING}`}
     >
       <span aria-hidden="true">
         P
         <span className="relative inline-block">
           {/* "ı" sem pingo; a pipoca faz o papel do pingo */}
           ı
-          <Pipoca className="absolute -top-[9px] left-1/2 size-[13px] -translate-x-1/2" />
+          <Pipoca className="absolute -top-[8px] left-1/2 size-[11px] -translate-x-1/2 sm:-top-[9px] sm:size-[13px]" />
         </span>
         pocou
       </span>

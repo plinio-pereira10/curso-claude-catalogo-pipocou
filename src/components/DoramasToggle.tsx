@@ -48,7 +48,7 @@ export function DoramasToggle({ type, filters, disabled }: Props) {
             onClick={() => choose(option.doramas)}
             disabled={disabled}
             aria-pressed={active}
-            className={`rounded-full px-3.5 py-1 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING} ${
+            className={`rounded-full px-3.5 py-1.5 text-sm sm:py-1 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${FOCUS_RING} ${
               active ? 'bg-texto text-noite' : 'text-suave hover:text-texto'
             }`}
           >

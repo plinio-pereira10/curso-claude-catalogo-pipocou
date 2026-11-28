@@ -11,7 +11,7 @@ export function LoginLink() {
   const href = pathname === '/' || isAuthPage ? '/entrar' : `/entrar?voltar=${encodeURIComponent(pathname)}`
 
   return (
-    <Link href={href} className={`rounded-full border border-linha px-4 py-1.5 text-sm font-semibold ${FOCUS_RING}`}>
+    <Link href={href} className={`rounded-full border border-linha px-3 py-1.5 sm:px-4 text-sm font-semibold ${FOCUS_RING}`}>
       Entrar
     </Link>
   )

@@ -5,8 +5,8 @@ import type { MediaType } from '@/lib/media'
 import { FOCUS_RING } from '@/lib/ui'
 import { SearchBox } from './SearchBox'
 
-/** Botões redondos do celular (lupa e X): 40px para o dedo. */
-const ROUND_BUTTON = `flex size-10 shrink-0 items-center justify-center rounded-full border border-linha text-texto/90 hover:bg-white/10 hover:text-texto sm:hidden ${FOCUS_RING}`
+/** Botões redondos do celular (lupa e X). */
+const ROUND_BUTTON = `flex shrink-0 items-center justify-center rounded-full text-texto/90 hover:bg-white/10 hover:text-texto sm:hidden ${FOCUS_RING}`
 
 /**
  * Busca do menu. No celular fica escondida atrás de um botão de lupa e abre numa linha
@@ -53,7 +53,8 @@ export function SearchToggle({ type, initialQuery = '' }: { type: MediaType; ini
         aria-expanded={open}
         aria-controls={rowId}
         onClick={openSearch}
-        className={`ml-auto ${ROUND_BUTTON}`}
+        // lupa sem borda e com 36px, para caber na linha do logo
+        className={`ml-auto size-9 ${ROUND_BUTTON}`}
       >
         <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <circle cx="11" cy="11" r="7" />
@@ -73,7 +74,7 @@ export function SearchToggle({ type, initialQuery = '' }: { type: MediaType; ini
           type="button"
           aria-label="Fechar busca"
           onClick={closeSearch}
-          className={ROUND_BUTTON}
+          className={`size-10 border border-linha ${ROUND_BUTTON}`}
         >
           <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M6 6l12 12M18 6 6 18" />

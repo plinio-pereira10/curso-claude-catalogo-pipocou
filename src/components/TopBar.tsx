@@ -35,7 +35,8 @@ export function TopBar({ type, variant = 'solid', providers, filters }: Props) {
 
   return (
     <header className={`${position} ${GUTTER} pt-4`}>
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+      {/* No celular os espaços são menores para logo, abas, lupa e conta caberem numa linha. */}
+      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-3 sm:gap-x-5">
         <Logo />
 
         {/* As abas leem o endereço (filtros); enquanto isso, mostra a versão sem filtros. */}

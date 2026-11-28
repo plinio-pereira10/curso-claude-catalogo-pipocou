@@ -46,7 +46,7 @@ function TabLinks({ active, hrefFor }: { active: MediaType | null; hrefFor: (typ
             key={type}
             href={hrefFor(type)}
             aria-current={isActive ? 'page' : undefined}
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${FOCUS_RING} ${
+            className={`rounded-full px-2.5 py-1.5 text-sm sm:px-4 font-semibold transition-colors ${FOCUS_RING} ${
               isActive ? 'bg-texto text-noite' : 'text-texto/80 hover:bg-white/10 hover:text-texto'
             }`}
           >
