@@ -30,14 +30,21 @@ export function FiltersPanel({ count, disabled, children }: Props) {
         aria-controls={panelId}
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
-        className={`rounded-full border border-linha px-4 py-1.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 sm:hidden ${FOCUS_RING}`}
+        className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent sm:hidden ${
+          open ? 'border-texto/40 bg-white/10' : 'border-linha'
+        } ${FOCUS_RING}`}
       >
+        <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+          <circle cx="16" cy="7" r="2" />
+          <circle cx="10" cy="17" r="2" />
+        </svg>
         {count > 0 ? `Filtros (${count})` : 'Filtros'}
       </button>
 
       <div
         id={panelId}
-        className={`${open ? 'flex' : 'hidden'} order-last w-full flex-col gap-3 sm:contents sm:[&_label]:w-auto sm:[&_label]:justify-start sm:[&_select]:w-auto [&_label]:w-full [&_label]:justify-between [&_select]:w-44`}
+        className={`${open ? 'flex' : 'hidden'} order-last w-full flex-col gap-3 rounded-2xl border border-linha bg-superficie/60 p-4 sm:contents sm:[&_label]:w-auto sm:[&_label]:justify-start sm:[&_select]:w-auto [&_label]:w-full [&_label]:justify-between [&_select]:h-10 [&_select]:w-44 sm:[&_select]:h-auto`}
       >
         {children}
       </div>
