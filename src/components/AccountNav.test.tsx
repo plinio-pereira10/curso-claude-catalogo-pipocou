@@ -18,6 +18,8 @@ test('AccountNav logado mostra Minhas listas, inicial e Sair', async () => {
   getCurrentUser.mockResolvedValue({ id: 'u1', email: 'plinio@x.com', initial: 'P' })
   render(await AccountNav())
   expect(screen.getByRole('link', { name: 'Minhas listas' })).toHaveAttribute('href', '/minhas-listas')
+  expect(screen.getByRole('button', { name: 'Menu da conta' })).toBeInTheDocument()
+  expect(screen.getAllByRole('link', { name: 'Minhas listas' })).toHaveLength(1)
   expect(screen.getByTitle('plinio@x.com')).toHaveTextContent('P')
   expect(screen.getByRole('button', { name: 'Sair' })).toBeInTheDocument()
   expect(screen.queryByRole('link', { name: 'Entrar' })).toBeNull()
