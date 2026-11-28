@@ -17,6 +17,7 @@ test('TopBar sem streamings não mostra os logos', () => {
   render(<TopBar type="movie" />)
   expect(screen.queryByRole('group', { name: 'Filtrar por streaming' })).toBeNull()
   expect(screen.getByRole('search')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Abrir busca' })).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Filmes' })).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Séries' })).toBeInTheDocument()
 })

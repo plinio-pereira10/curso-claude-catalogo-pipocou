@@ -7,7 +7,7 @@ import { AccountNav } from './AccountNav'
 import { Logo } from './Logo'
 import { MediaTabs, MediaTabsFallback } from './MediaTabs'
 import { ProviderFilter } from './ProviderFilter'
-import { SearchBox } from './SearchBox'
+import { SearchToggle } from './SearchToggle'
 
 type Props = {
   type: MediaType
@@ -52,13 +52,11 @@ export function TopBar({ type, variant = 'solid', providers, filters }: Props) {
           </>
         )}
 
-        {/* No celular a busca ocupa a linha toda e desce (order-1) para a conta ficar na linha do logo. */}
-        <div className="order-1 w-full sm:order-none sm:ml-auto sm:w-auto">
-          <SearchBox key={filters?.q ?? ''} type={type} initialQuery={filters?.q} />
-        </div>
+        {/* No celular: lupa à direita na linha do logo (ml-auto) e, ao abrir, a busca ocupa a linha de baixo. */}
+        <SearchToggle key={filters?.q ?? ''} type={type} initialQuery={filters?.q} />
 
-        {/* No celular, à direita na linha do logo (ml-auto); a partir de sm, depois da busca. */}
-        <div className="ml-auto sm:ml-0">
+        {/* Depois da lupa (celular) ou da busca (a partir de sm). */}
+        <div>
           {/* Lê o cookie de sessão; enquanto isso, não mostra nada (evita piscar "Entrar" para quem está logado). */}
           <Suspense fallback={null}>
             <AccountNav />

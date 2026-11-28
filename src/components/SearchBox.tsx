@@ -6,7 +6,15 @@ import { listHref, MEDIA, type MediaType } from '@/lib/media'
 import { FOCUS_RING } from '@/lib/ui'
 
 /** Busca por nome. Envia com Enter ou com o botão; "Limpar" volta para a lista normal. */
-export function SearchBox({ type, initialQuery = '' }: { type: MediaType; initialQuery?: string }) {
+export function SearchBox({
+  type,
+  initialQuery = '',
+  inputRef,
+}: {
+  type: MediaType
+  initialQuery?: string
+  inputRef?: React.Ref<HTMLInputElement>
+}) {
   const router = useRouter()
   const [text, setText] = useState(initialQuery)
   const placeholder = type === 'tv' ? 'Buscar série pelo nome' : 'Buscar filme pelo nome'
@@ -24,6 +32,7 @@ export function SearchBox({ type, initialQuery = '' }: { type: MediaType; initia
   return (
     <form onSubmit={submit} role="search" className="flex gap-2">
       <input
+        ref={inputRef}
         type="search"
         value={text}
         onChange={(e) => setText(e.target.value)}
